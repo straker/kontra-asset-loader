@@ -1,0 +1,27 @@
+{
+  "bundles": [{
+    "name": "level1",
+    "assets": {
+      "bg": "imgs/road.png",
+      "player": "imgs/sports_car.png",
+      "car": "imgs/car.png",
+      "motorcycle": "imgs/motorcycle.png",
+      "music": ["audio/mink_pohawk.mp3", "audio/mink_pohawk.ogg"]
+    }
+  },
+  {
+    "name": "level2",
+    "assets": {
+      "truck": "imgs/truck.png",
+      "van": "imgs/van.png"
+    }
+  },
+  {
+    "name": "level3",
+    "assets": {
+      "bus": "imgs/bus.png",
+      "garbage_truck": "imgs/garbage_truck.png"
+    }
+  }],
+  "loadBundles" : "level1"
+}

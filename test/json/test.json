@@ -1,0 +1,16 @@
+{
+  "test": "hello",
+  "bundles" : [{
+    "name" : "level1",
+    "assets" : {
+      "bg" : "./imgs/bullet.png"
+    }
+  },
+  {
+    "name" : "level2",
+    "assets": {
+      "bg" : "./imgs/bullet.png"
+    }
+  }],
+  "loadBundles" : false
+}

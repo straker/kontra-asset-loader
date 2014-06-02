@@ -1,0 +1,9 @@
+{
+  "bundles" : [{
+    "name" : "level1",
+    "assets" : {
+      "bg" : "./imgs/bad_image.png"
+    }
+  }],
+  "loadBundles" : "level1"
+}
