@@ -20,7 +20,7 @@
  */
 
 /**
- * @fileoverview Asset Manager Example - Seemless Level Loading.
+ * @fileoverview Asset Manager Example - Seamless Level Loading.
  * @author steven@sklambert.com (Steven Lambert)
  *
  * Art assets by Master484 {@link http://opengameart.org/users/master484}
