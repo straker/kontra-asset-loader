@@ -20,8 +20,11 @@
  */
 
 /**
- * @fileoverview Asset Manager Example - Road Rage.
+ * @fileoverview Asset Manager Example - Seemless Level Loading.
  * @author steven@sklambert.com (Steven Lambert)
+ *
+ * Art assets by Master484 {@link http://opengameart.org/users/master484}
+ * Audio assets by BossLevelVGM {@link http://opengameart.org/users/bosslevelvgm}
  */
 (function() {
   var AM = new AssetManager();
@@ -29,14 +32,18 @@
   // load the manifest
   console.log('====== Loading level 1 ======');
   AM.loadManifest('manifest.json').then(function() {
-    start();
+    showPlayButton();
   }, function(err) {
     console.error(err.message);
   }, function(progress) {
     console.log(progress);
+    pBar.value = progress.loaded / progress.total;
+    percent.innerHTML = Math.round(pBar.value * 100) + "%";
   })
   .done();
 
+  var pBar = document.getElementById('progress-bar');
+  var percent = document.getElementById('percent')
   var canvas = document.getElementById("canvas");
   var ctx = canvas.getContext('2d');
   var begin, now, last, passed, accumulator = 0, dt = 1000 / 60;
@@ -347,6 +354,15 @@
     if (KEY_CODES[keyCode]) {
       e.preventDefault();
       KEY_STATUS[KEY_CODES[keyCode]] = false;
+    }
+  }
+
+  function showPlayButton() {
+    var playButton = document.getElementById('play');
+    playButton.style.visibility = 'visible';
+    playButton.onclick = function() {
+      document.getElementById('progress').style.display = 'none';
+      start();
     }
   }
 })();

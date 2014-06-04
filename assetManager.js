@@ -1,4 +1,27 @@
+/*
+ * Copyright (C) 2014 Steven Lambert
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this
+ * software and associated documentation files (the "Software"), to deal in the Software
+ * without restriction, including without limitation the rights to use, copy, modify,
+ * merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to the following
+ * conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies
+ * or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+ * PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+ * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
+ * OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
 /**
+ * @fileoverview Asset Manager Library.
+ * @author steven@sklambert.com (Steven Lambert)
  * @requires Q.js
  */
 (function(exports) {
@@ -6,6 +29,12 @@
 if (typeof Q !== 'function') {
   throw new Error('AssetManager requires the Q.js library. https://github.com/kriskowal/q');
 }
+
+// save the toString method for objects
+var toString = ({}).toString;
+
+// detect iOS so we can deal with audio assets not pre-loading
+var isiOS = (navigator.userAgent.match(/(iPad|iPhone|iPod)/g) ? true : false);
 
 /**
  * @constructor
@@ -25,7 +54,7 @@ var AssetManager = function() {
   this.assetRoot = './';
   this.bundles = {};
 
-  this.supportedAssets = ['jpeg', 'jpg', 'gif', 'png', 'wav', 'mp3', 'ogg', 'acc', 'm4a', 'js', 'css', 'json'];
+  this.supportedAssets = ['jpeg', 'jpg', 'gif', 'png', 'wav', 'mp3', 'ogg', 'aac', 'm4a', 'js', 'css', 'json'];
 
   // audio playability (taken from Modernizr)
   var audio = new Audio();
@@ -34,7 +63,7 @@ var AssetManager = function() {
   this.canPlay.mp3 = audio.canPlayType('audio/mpeg;').replace(/no/, '');
   this.canPlay.ogg = audio.canPlayType('audio/ogg; codecs="vorbis"').replace(/no/, '');
   this.canPlay.aac = audio.canPlayType('audio/aac;').replace(/no/, '');
-  this.canPlay.m4a = (audio.canPlayType('audio/x-m4a;') || this.canPlay.acc).replace(/no/, '');
+  this.canPlay.m4a = (audio.canPlayType('audio/x-m4a;') || this.canPlay.aac).replace(/no/, '');
 };
 var AM = AssetManager.prototype;
 
@@ -46,8 +75,6 @@ var AM = AssetManager.prototype;
  */
 AM.loadManifest = function(url) {
   var _this = this;
-  var numLoaded = 0;
-  var numAssets = 0;
   var deferred = Q.defer();
   var promises = [];
   var i, len, bundle, bundles;
@@ -160,8 +187,6 @@ AM.createBundle = function(bundle, isPromise) {
 AM.loadBundle = function(bundle) {
   var _this = this;
   var bundles = [];
-  var numLoaded = 0;
-  var numAssets = 0;
   var deferred = Q.defer();  // defer to return
   var promises = [];  // keep track of all assets loaded
   var assets;
@@ -183,7 +208,6 @@ AM.loadBundle = function(bundle) {
     }
 
     assets.status = 'loading';
-    numAssets += Object.keys(assets || {}).length;
     promises.push(this.loadAsset(assets));
   }
 
@@ -199,7 +223,7 @@ AM.loadBundle = function(bundle) {
       deferred.reject(err);
     }, function loadBundlesNotify(progress) {
       // notify user of progress
-      deferred.notify({'loaded': ++numLoaded, 'total': numAssets});
+      deferred.notify({'loaded': progress.value.loaded, 'total': progress.value.total});
     })
     .done();
   })(_this, bundles);
@@ -315,26 +339,37 @@ AM.loadAsset = function(asset) {
             promises.push(defer.promise);
           }
           else {
+            // don't count audio in iOS
+            if (isiOS) {
+              numAssets--;
+            }
+
             (function loadAudio(name, src, defer) {
               var audio = new Audio();
               audio.status = 'loading';
               audio.name = name;
               audio.addEventListener('canplay', function() {
-                if (audioLoaded(audio)) {
-                  audio.status = 'loaded';
-                  _this.assets[name] = audio;
-                  defer.resolve();
-                  deferred.notify({'loaded': ++numLoaded, 'total': numAssets});
-                }
+                audio.status = 'loaded';
+                _this.assets[name] = audio;
+                defer.resolve();
+                deferred.notify({'loaded': ++numLoaded, 'total': numAssets});
               });
-              audio.onerror = function() {
-                defer.reject(new Error('Unable to load Audio ' + name + ': ' + e.message));
+              audio.onerror = function(e) {
+                defer.reject(new Error('Unable to load Audio \'' + name + '\''));
               };
               audio.src = src;
               audio.preload = 'auto';
               audio.load();
 
-              promises.push(defer.promise);
+              // for iOS, just load the asset without adding it the promises array
+              // the audio will be downloaded on user interaction instead
+              if (isiOS) {
+                audio.status = 'loaded';
+                _this.assets[name] = audio;
+              }
+              else {
+                promises.push(defer.promise);
+              }
             })(assetName, playableSrc, defer);
           }
           break;
@@ -539,24 +574,10 @@ function getType(url) {
 
 /**
  * Return the extension of a file.
+ * @see {@link http://jsperf.com/extract-file-extension}
  */
 function getExtension(url) {
-  var extension = (url.toLowerCase().match(/\.([a-z]*)$/) || ['',''])[1];
-  return extension ? extension : 'unknown';
-}
-
-/**
- * Check the loading state of an Audio.
- * @private
- * @param {Audio} audio - The Audio object to check.
- * @returns True if the audio is loaded.
- */
-function audioLoaded(audio) {
-  if (audio.status === 'loading' && audio.readyState === 4) {
-    return true;
-  }
-
-  return false;
+  return url.substr((~-url.lastIndexOf(".") >>> 0) + 2);
 }
 
 /**

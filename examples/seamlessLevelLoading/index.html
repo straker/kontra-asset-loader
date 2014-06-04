@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Road Rage</title>
+  <script src="../q.min.js"></script>
+  <script src="../../assetManager.js"></script>
+  <style>
+  canvas {
+    position: absolute;
+    top: 0;
+    border: 1px solid black;
+  }
+
+  .wrapper {
+    position: relative;
+    width: 545px;
+  }
+
+  #progress {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    height: 320px;
+  }
+
+  #progress:before, #progress:after {
+    content: '';
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+  }
+
+  .progress-wrapper {
+    display: inline-block;
+  }
+
+  #play {
+    visibility: hidden;
+    line-height: 24px;
+    margin-top: 5px;
+    padding: 0 10px;
+    border-radius: 5px;
+    outline: 0;
+  }
+</style>
+</head>
+<body>
+  <div class="wrapper">
+    <div id="progress">
+      <div class="progress-wrapper">
+        <div>Downloading: <span id="percent"></span></div>
+        <progress id="progress-bar" value="0"></progress>
+        <br><button id="play">Play</button>
+      </div>
+    </div>
+    <canvas id="canvas" width="545" height="320"></canvas>
+  </div>
+  <script src="./seamlessLevelLoading.js"></script>
+</body>
+</html>

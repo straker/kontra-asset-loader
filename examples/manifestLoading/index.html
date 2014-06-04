@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Bundle Loading</title>
+  <script src="../q.min.js"></script>
+  <script src="../../assetManager.js"></script>
+  <style>
+  #play {
+    visibility: hidden;
+  }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div id="progress">
+      <div class="progress-wrapper">
+        <div>Downloading: <span id="percent"></span></div>
+        <progress id="progress-bar" value="0"></progress>
+        <br><button id="play">Play</button>
+      </div>
+    </div>
+  </div>
+  <script src="./manifestLoading.js"></script>
+</body>
+</html>
