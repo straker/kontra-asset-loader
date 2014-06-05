@@ -1,7 +1,7 @@
 AssetManager - HTML5 JavaScript game asset manager
 ============
 
-Currently tested on Chrome35, Safari7, FireFox27, IE11, Kindle Silk, iPad3, and iPhone 5s.
+Currently tested on Chrome35, Safari7, FireFox27, IE9+, Kindle Silk, iPad3, and iPhone 5s.
 
 ## What is AssetManager
 

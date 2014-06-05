@@ -237,7 +237,7 @@
    */
   function animate() {
     if (play) {
-      requestAnimationFrame(animate);
+      requestAnimFrame(animate);
 
       ctx.clearRect(0,0,canvas.width,canvas.height);
 
@@ -314,7 +314,7 @@
     AM.assets.music.play();
     AM.assets.music.loop = true;
     last = begin = new Date().getTime();
-    requestAnimationFrame(animate);
+    requestAnimFrame(animate);
   }
 
   /**
