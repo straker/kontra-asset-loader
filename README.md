@@ -74,7 +74,7 @@ You can tell AssetManager to load the manifest into your game (and thus the asse
 
 Once loaded, all assets can be accessed by name from `AM.assets`.
 
-After the manifest is loaded, you can load any bundles by calling [loadBundle](#loadBundle).
+After the manifest is loaded, you can load any bundles by calling [loadBundle](#loading-bundles).
 
 #### Loading Assets
 
@@ -113,7 +113,6 @@ AssetManager also allows you to load JSON, JavaScript, and CSS assets directly b
 
 `loadJSON` automatically parses the file and returns the parsed JSON in the finish callback. `loadScript` and `loadCSS` do not add the script and css to `AM.assets` since it loads the asset into the DOM.
 
-<a id="#loadBundle" name="#loadBundle"></a>
 #### Loading Bundles
 
 You can also create a group of assets to load at a later time by calling `createBundle` (does not return a promise).
