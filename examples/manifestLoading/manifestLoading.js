@@ -39,8 +39,7 @@
     console.log('Asset loaded. Loaded ' + progress.loaded + ' of ' + progress.total);
     pBar.value = progress.loaded / progress.total;
     percent.innerHTML = Math.round(pBar.value * 100) + "%";
-  })
-  .done();
+  });
 
   function showPlayButton() {
     var playButton = document.getElementById('play');

@@ -39,8 +39,7 @@
     console.log(progress);
     pBar.value = progress.loaded / progress.total;
     percent.innerHTML = Math.round(pBar.value * 100) + "%";
-  })
-  .done();
+  });
 
   var pBar = document.getElementById('progress-bar');
   var percent = document.getElementById('percent')
@@ -216,8 +215,7 @@
       console.error(err.message);
     }, function(progress) {
       console.log(progress);
-    })
-    .done();
+    });
   }
 
   /**

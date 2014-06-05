@@ -1,0 +1,26 @@
+{
+  "name": "assetManager",
+  "version": "0.0.0",
+  "description": "HTML JavaScript game asset manager",
+  "main": "assetManager.js",
+  "directories": {
+    "example": "examples",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/straker/AssetManager.git"
+  },
+  "author": "Steven Lambert",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/straker/AssetManager/issues"
+  },
+  "homepage": "https://github.com/straker/AssetManager",
+  "dependencies": {
+    "qLite": "git://github.com/straker/qLite"
+  }
+}
