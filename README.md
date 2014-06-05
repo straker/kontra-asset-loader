@@ -23,7 +23,7 @@ Start by creating a new AssetManager object.
 
 AssetManager's greatest benefit is being able to load a file that defines what assets you need and when you need them. The asset manifest file groups assets into bundles which are then loaded when needed.
 
-An asset manifest looks as follows:
+An asset manifest can look as follows:
 
     {
       "bundles": [{
@@ -48,7 +48,11 @@ An asset manifest looks as follows:
 
 You can define as many bundles as you would like.
 
-The `loadBundle` property tells AssetManager to load a single bundle, a list of bundles
+The `loadBundle` property tells AssetManager to load a single bundle
+
+    "loadBundles" : "level1"
+
+a list of bundles
 
     "loadBundles" : ["level1", "level2"]
 
@@ -87,6 +91,13 @@ You can tell AssetManger to load an asset (or a group of assets) by calling `loa
     }, function progressCallback(progress) {
       console.log('Loaded ' + progress.loaded + ' of ' + progress.total + ' assets.');
     });
+
+When loading audio assets, you can specify multiple formats and AssetManager will determine which format to load based on the current browser's support.
+
+    AM.loadAsset({
+      'music': ['audio/music.mp3', 'audio/music.aac', 'audio/music.ogg']
+    })
+    ...
 
 #### Loading JSON, JavaScript, and CSS
 
