@@ -34,7 +34,8 @@ An asset manifest can look as follows:
           "car": "imgs/car.png",
           "car_left": "imgs/car_left.png",
           "motorcycle": "imgs/motorcycle.png",
-          "motorcycle_left": "imgs/motorcycle_left.png"
+          "motorcycle_left": "imgs/motorcycle_left.png",
+          "music": ["audio/music.mp3", "audio/music.aac", "audio/music.ogg"]
         }
       },
       {
