@@ -73,7 +73,7 @@ You can tell AssetManager to load the manifest into your game (and thus the asse
       console.log('Loaded ' + progress.loaded + ' of ' + progress.total + ' assets.');
     });
 
-Once loaded, all assets can be accessed from `AM.assets`.
+Once loaded, all assets can be accessed by name from `AM.assets`.
 
 #### Loading Assets
 
