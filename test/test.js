@@ -286,9 +286,10 @@ asyncTest('should load a single audio assets as Audios.', function() {
   expect(1);
 
   AM.loadAsset({'wav': './audio/shoot.wav'}).then(function() {
-    ok(AM.assets.wav instanceof Audio || !AM.canPlay.wav, '.wav loaded as an Audio.');
+    ok(AM.assets.wav instanceof Audio, '.wav loaded as an Audio.');
     start();
   }, function(err) {
+    ok(!AM.canPlay.wav, '.wav is not playable in this browser, so this test is ok to not work.');
     start();
   });
 });
@@ -296,8 +297,8 @@ asyncTest('should load a single audio assets as Audios.', function() {
 asyncTest('should load multiple audio assets as Audios.', function() {
   expect(1);
 
-  AM.loadAsset({'wav': ['./audio/shoot.wav', './audio/shoot.wav']}).then(function() {
-    ok(AM.assets.wav instanceof Audio || !AM.canPlay.wav, '.wav loaded as an Audio.');
+  AM.loadAsset({'shoot': ['./audio/shoot.wav', './audio/shoot.mp3', './audio/shoot.ogg', './audio/shoot.aac', './audio/shoot.m4a']}).then(function() {
+    ok(AM.assets.shoot instanceof Audio, 'asset \'shoot\' loaded as an Audio.');
     start();
   }, function(err) {
     start();
