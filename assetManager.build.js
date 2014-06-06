@@ -130,7 +130,6 @@ AM.loadManifest = function(url) {
     });
   }
   else {
-    console.info('Manifest \'' + url + '\' already loaded.');
     deferred.resolve();
   }
 
@@ -461,7 +460,7 @@ AM.loadScript = function(url) {
  * @see {@link http://pieisgood.org/test/script-link-events/}
  * NOTE: This function does not add the asset to the assets dictionary.
  * @public
- * @param {string} url = The URL to the CSS file.
+ * @param {string} url - The URL to the CSS file.
  * @returns Deferred promise.
  */
 AM.loadCSS = function(url) {

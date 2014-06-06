@@ -281,17 +281,21 @@ asyncTest('should throw an error if the browser cannot play an audio format.', f
   });
 });
 
-// Testing audio is both browser dependent and unreliable, but we can at least test .wav files for the majority of browsers.
 asyncTest('should load a single audio assets as Audios.', function() {
   expect(1);
 
-  AM.loadAsset({'wav': './audio/shoot.wav'}).then(function() {
-    ok(AM.assets.wav instanceof Audio, '.wav loaded as an Audio.');
-    start();
-  }, function(err) {
-    ok(!AM.canPlay.wav, '.wav is not playable in this browser, so this test is ok to not work.');
-    start();
-  });
+  // find the first audio format that is playable and use it for the test
+  for (var format in AM.canPlay) {
+    if (AM.canPlay.hasOwnProperty(format) && AM.canPlay[format]) {
+      AM.loadAsset({'music': './audio/shoot.' + format}).then(function() {
+        ok(AM.assets.music instanceof Audio, 'asset \'music\' loaded as an Audio.');
+        start();
+      }, function(err) {
+        start();
+      });
+      break;
+    }
+  }
 });
 
 asyncTest('should load multiple audio assets as Audios.', function() {
@@ -547,15 +551,22 @@ asyncTest('should auto load assets if property \'loadBundles\' is set to \'all\'
   });
 });
 
-asyncTest('should immediately resolve if the manifest has already been loaded.', function() {
+asyncTest('should not process the manifest if it has already been loaded.', function() {
   expect(2);
 
+  // fake the manifest already having been loaded
+  AM.manifestUrl = './json/test.json';
+
   AM.loadManifest('./json/test.json').then(function() {
-    ok(1, 'manifest loaded the first time.');
-    AM.loadManifest('./json/test.json').then(function() {
-      ok(1, 'manifest loaded the second time');
-      start();
-    });
+    ok(!AM.bundles.level1, 'bundle \'level1\' was not loaded from the manifest.');
+    ok(!AM.assets.bg, 'asset \'bg\' was not loaded from the manifest.')
+    start();
+  }, function(err) {
+    ok(0, err.message);
+    start();
+  }, function(progress) {
+    ok(0, progress);
+    start();
   });
 });
 
