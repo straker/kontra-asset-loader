@@ -76,8 +76,8 @@ asyncTest('should load the css into the DOM.', function() {
   expect(2);
 
   AM.loadCSS('./css/test.css').then(function() {
+    equal(document.querySelectorAll('style[data-url="./css/test.css"]').length, 1, 'css was added to the DOM.');
     equal(getCSS('testDiv', 'position'), 'relative', 'css successfully loaded.');
-    equal(document.querySelectorAll('link[href="./css/test.css"]').length, 1, 'css was added to the DOM.');
     start();
   }, function(err) {
     start();

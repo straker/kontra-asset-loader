@@ -456,6 +456,9 @@ AM.loadScript = function(url) {
 
 /**
  * Load a CSS file.
+ * Because of the lack of onload and onerror support for <link> tags, we need to load the CSS
+ * file via ajax and then put the contents of the file into a <style> tag.
+ * @see {@link http://pieisgood.org/test/script-link-events/}
  * NOTE: This function does not add the asset to the assets dictionary.
  * @public
  * @param {string} url = The URL to the CSS file.
@@ -463,18 +466,23 @@ AM.loadScript = function(url) {
  */
 AM.loadCSS = function(url) {
   var deferred = q.defer();
-  var link = document.createElement('link');
-  link.async = true;
-  link.rel = 'stylesheet';
-  link.onload = function() {
-    deferred.resolve();
-  };
-  link.onerror = function() {
-    var err = new Error();
-    deferred.reject(formatError(err, 'Unable to load CSS file'));
-  };
-  link.href = url;
-  document.getElementsByTagName('head')[0].appendChild(link);
+  var req = new XMLHttpRequest();
+  req.addEventListener('load', function CSSLoaded() {
+    // ensure we have a css file before creating the <style> tag
+    if (req.status === 200 && req.getResponseHeader('content-type').indexOf('text/css') !== -1) {
+      var style = document.createElement('style');
+      style.innerHTML = req.responseText;
+      style.setAttribute('data-url', url);  // set data attribute for testing purposes
+      document.getElementsByTagName('head')[0].appendChild(style);
+      deferred.resolve();
+    }
+    else {
+      var err = new Error(req.responseText);
+      deferred.reject(formatError(err, 'Unable to load CSS file'));
+    }
+  });
+  req.open('GET', url, true);
+  req.send();
 
   return deferred.promise;
 };
@@ -490,9 +498,8 @@ AM.loadCSS = function(url) {
 AM.loadJSON = function(url) {
   var deferred = q.defer();
   var req = new XMLHttpRequest();
-  req.open('GET', url, true);
   req.addEventListener('load', function JSONLoaded() {
-    if (req.status == 200) {
+    if (req.status === 200) {
       try {
         var json = JSON.parse(req.responseText);
         deferred.resolve(json);
@@ -506,6 +513,7 @@ AM.loadJSON = function(url) {
       deferred.reject(formatError(err, 'Unable to load JSON file'));
     }
   });
+  req.open('GET', url, true);
   req.send();
 
   return deferred.promise;
