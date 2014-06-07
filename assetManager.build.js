@@ -29,9 +29,6 @@
 // save the toString method for objects
 var toString = ({}).toString;
 
-// detect iOS so we can deal with audio assets not pre-loading
-var isiOS = (navigator.userAgent.match(/(iPad|iPhone|iPod)/g) ? true : false);
-
 /**
  * @constructor
  * @property {string} manifestUrl - The URL to the manifest file.
@@ -51,6 +48,9 @@ var AssetManager = function() {
   this.bundles = {};
 
   this.supportedAssets = ['jpeg', 'jpg', 'gif', 'png', 'wav', 'mp3', 'ogg', 'aac', 'm4a', 'js', 'css', 'json'];
+
+  // detect iOS so we can deal with audio assets not pre-loading
+  this.isiOS = (navigator.userAgent.match(/(iPad|iPhone|iPod)/g) ? true : false);
 
   // audio playability (taken from Modernizr)
   var audio = new Audio();
@@ -72,7 +72,6 @@ var AM = AssetManager.prototype;
 AM.loadManifest = function(url) {
   var _this = this;
   var deferred = q.defer();
-  var promises = [];
   var i, len, bundle, bundles;
 
   // load the manifest only if it hasn't been loaded
@@ -180,6 +179,8 @@ AM.createBundle = function(bundle, isPromise) {
  */
 AM.loadBundle = function(bundle) {
   var _this = this;
+  var numLoaded = 0;
+  var numAssets = 0;
   var bundles = [];
   var deferred = q.defer();  // defer to return
   var promises = [];  // keep track of all assets loaded
@@ -201,6 +202,8 @@ AM.loadBundle = function(bundle) {
       return deferred.promise;
     }
 
+    numAssets += countAssets(assets);
+
     assets.status = 'loading';
     promises.push(this.loadAsset(assets));
   }
@@ -215,9 +218,9 @@ AM.loadBundle = function(bundle) {
       deferred.resolve();
     }, function loadBundlesError(err) {
       deferred.reject(err);
-    }, function loadBundlesNotify(progress) {
+    }, function loadBundlesNotify() {
       // notify user of progress
-      deferred.notify({'loaded': progress.loaded, 'total': progress.total});
+      deferred.notify({'loaded': ++numLoaded, 'total': numAssets});
     });
   })(_this, bundles);
 
@@ -267,7 +270,7 @@ AM.addBundleAsset = function(bundleName, asset, isPromise) {
 AM.loadAsset = function(asset) {
   var _this = this;
   var numLoaded = 0;
-  var numAssets = Object.keys(asset || {}).length;
+  var numAssets = countAssets(asset);
   var deferred = q.defer();
   var promises = [];
   var src, type, defer;
@@ -299,7 +302,7 @@ AM.loadAsset = function(asset) {
               defer.resolve();
               deferred.notify({'loaded': ++numLoaded, 'total': numAssets});
             };
-            image.onerror = function(e) {
+            image.onerror = function() {
               defer.reject(new Error('Unable to load Image \'' + name + '\''));
             };
             image.src = src;
@@ -317,7 +320,6 @@ AM.loadAsset = function(asset) {
           var source, playableSrc;
           for (var i = 0, len = src.length; i < len; i++) {
             source = src[i];
-            var audioType = getType(source);
             var extension = getExtension(source);
 
             // break on first audio type that is playable
@@ -333,7 +335,7 @@ AM.loadAsset = function(asset) {
           }
           else {
             // don't count audio in iOS
-            if (isiOS) {
+            if (this.isiOS) {
               numAssets--;
             }
 
@@ -347,7 +349,7 @@ AM.loadAsset = function(asset) {
                 defer.resolve();
                 deferred.notify({'loaded': ++numLoaded, 'total': numAssets});
               });
-              audio.onerror = function(e) {
+              audio.onerror = function() {
                 defer.reject(new Error('Unable to load Audio \'' + name + '\''));
               };
               audio.src = src;
@@ -356,7 +358,7 @@ AM.loadAsset = function(asset) {
 
               // for iOS, just load the asset without adding it the promises array
               // the audio will be downloaded on user interaction instead
-              if (isiOS) {
+              if (_this.isiOS) {
                 audio.status = 'loaded';
                 _this.assets[name] = audio;
               }
@@ -407,7 +409,7 @@ AM.loadAsset = function(asset) {
           break;
 
         default:
-          err = new TypeError('Unsupported asset type');
+          var err = new TypeError('Unsupported asset type');
           deferred.reject(formatError(err, 'File type for asset \'' + assetName + '\' is not supported. Please use ' + this.supportedAssets.join(', ')));
       }
     }
@@ -539,10 +541,44 @@ function addBundle(bundleName) {
 }
 
 /**
+ * Count the number of assets.
+ * @private
+ * @param {object} assets - The assets to count.
+ * @return {number} Total number of assets.
+ */
+function countAssets(assets) {
+  var total = 0;
+  var asset, type;
+
+  for (var assetName in assets) {
+    if (assets.hasOwnProperty(assetName)) {
+      asset = assets[assetName];
+
+      if (asset instanceof Array) {
+        type = 'audio';
+      }
+      else {
+        type = getType(asset);
+      }
+
+      // only count audio assets if this is not iOS
+      if (type === 'audio' && !this.isiOS) {
+        total++;
+      }
+      else {
+        total++;
+      }
+    }
+  }
+
+  return total;
+}
+
+/**
  * Test if an object is a string.
  * @private
  * @param {object} obj - The object to test.
- * @returns True if the object is a string.
+ * @returns {boolean} True if the object is a string.
  */
 function isString(obj) {
   return toString.call(obj) === '[object String]';

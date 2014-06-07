@@ -385,16 +385,39 @@ asyncTest('should propagate errors.', function() {
   });
 });
 
-asyncTest('should notify user of progress.', function() {
-  expect(1);
+asyncTest('should notify user of progress and properly count the number of assets for a single asset.', function() {
+  expect(2);
 
-  AM.loadAsset({'test': './css/test.css'}).then(function() {
+  AM.loadAsset({'jpeg': './imgs/bullet.jpeg'}).then(function() {
   }, function(err) {
   }, function(progress) {
-    ok(1, 'progress event.');
-    start();
+    ok(1, 'progress event fired ' + progress.loaded + ' time for single asset.');  // should fire once
+    if (progress.loaded === progress.total) {
+      equal(progress.total, 1, 'assets counted correctly for single asset.');
+      start();
+    }
   });
 });
+
+asyncTest('should notify user of progress and properly count the number of assets for multiple assets.', function() {
+  expect(5);
+
+  AM.loadAsset({
+    'jpeg': './imgs/bullet.jpeg',
+    'manifest': './json/test.json',
+    'testScript': './js/testScript.js',
+    'testCSS': './css/testCSS.css'
+  }).then(function() {
+  }, function(err) {
+  }, function(progress) {
+    ok(1, 'progress event fired ' + progress.loaded + ' ' + (progress.loaded === 1 ? 'time' : 'times') + ' for multiple assets.');  // should fire four times
+    if (progress.loaded === progress.total) {
+      equal(progress.total, 4, 'assets counted correctly for multiple assets.');
+      start();
+    }
+  });
+});
+
 
 
 
@@ -462,19 +485,68 @@ asyncTest('should propagate errors.', function() {
   });
 });
 
-asyncTest('should notify user of progress.', function() {
-  expect(1);
+asyncTest('should notify user of progress and properly count the number of assets for a single bundle with a single asset.', function() {
+  expect(2);
 
-  AM.createBundle(['myBundle', 'otherBundle']);
+  AM.createBundle('myBundle');
   AM.addBundleAsset('myBundle', {'bullet': './imgs/bullet.jpeg'});
 
   AM.loadBundle('myBundle').then(function() {
   }, function(err) {
   }, function(progress) {
-    ok(1, 'progress event.');
-    start();
+    ok(1, 'progress event fired ' + progress.loaded + ' time for bundle \'myBundle\'.');  // should fire once
+    if (progress.loaded === progress.total) {
+      equal(progress.total, 1, 'assets counted correctly for bundle \'myBundle\'.');
+      start();
+    }
   });
 });
+
+asyncTest('should notify user of progress and properly count the number of assets for a single bundle with a multiple assets.', function() {
+  expect(5);
+
+  AM.createBundle('otherBundle');
+  AM.addBundleAsset('otherBundle', {
+    'jpeg': './imgs/bullet.jpeg',
+    'manifest': './json/test.json',
+    'testScript': './js/testScript.js',
+    'testCSS': './css/testCSS.css'
+  });
+
+  AM.loadBundle('otherBundle').then(function() {
+  }, function(err) {
+  }, function(progress) {
+    ok(1, 'progress event fired ' + progress.loaded + ' ' + (progress.loaded === 1 ? 'time' : 'times') + ' for bundle \'otherBundle\'.');  // should fire four times
+    if (progress.loaded === progress.total) {
+      equal(progress.total, 4, 'assets counted correctly for bundle \'otherBundle\'.');
+      start();
+    }
+  });
+});
+
+asyncTest('should notify user of progress and properly count the number of assets for a multiple bundles.', function() {
+  expect(6);
+
+  AM.createBundle(['myBundle', 'otherBundle']);
+  AM.addBundleAsset('myBundle', {'bullet': './imgs/bullet.jpeg'});
+  AM.addBundleAsset('otherBundle', {
+    'jpeg': './imgs/bullet.jpeg',
+    'manifest': './json/test.json',
+    'testScript': './js/testScript.js',
+    'testCSS': './css/testCSS.css'
+  });
+
+  AM.loadBundle(['myBundle', 'otherBundle']).then(function() {
+  }, function(err) {
+  }, function(progress) {
+    ok(1, 'progress event fired ' + progress.loaded + ' ' + (progress.loaded === 1 ? 'time' : 'times') + ' for bundles \'myBundle\' and \'otherBundle\'.');  // should fire five times
+    if (progress.loaded === progress.total) {
+      equal(progress.total, 5, 'assets counted correctly for bundles \'myBundle\' and \'otherBundle\'.');
+      start();
+    }
+  });
+});
+
 
 
 
