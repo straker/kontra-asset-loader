@@ -139,3 +139,5 @@ The assets won't be loaded (i.e. accessible from `AM.assets`) until you call `AM
     }, function progressCallback(progress) {
       console.log("Loaded " + progress.loaded + " of " + progress.total + " assets.");
     });
+
+LoadBundles also accepts an array of bundle names.
