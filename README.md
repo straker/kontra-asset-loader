@@ -9,7 +9,7 @@ AssetManager is a JavaScript library that makes it easy to load assets for your 
 
 ## Dependencies
 
-AssetManager depends on the [qLite.js](https://github.com/straker/qLite) library (3KB minified) for the promises API.
+AssetManager depends on the [qLite.js](https://github.com/straker/qLite) library (3KB minified) for the promises API. It is included in the `assetManager.build.js` and `assetManager.min.js`, so there is no need to include it separately into your game.
 
 ## Usage Examples
 
