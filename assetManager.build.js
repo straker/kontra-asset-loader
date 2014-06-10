@@ -20,7 +20,7 @@
  */
 
 /**
- * @fileoverview Asset Manager Library.
+ * @fileoverview HTML5 JavaScript Asset Manager Library.
  * @author steven@sklambert.com (Steven Lambert)
  * @requires qLite.js
  */
@@ -30,14 +30,15 @@
 var toString = ({}).toString;
 
 /**
- * @constructor
+ * @class AssetManager
  * @property {string} manifestUrl - The URL to the manifest file.
  * @property {object} manifest    - The JSON parsed manifest file.
  * @property {object} assets      - List of loaded assets.
  * @property {string} assetRoot   - Root directive for all assets.
- * @property {object} bundles     -
+ * @property {object} bundles     - List of created bundles.
+ * @property {object} canPlay     - List of audio type compatibility.
  */
-var AssetManager = function() {
+function AssetManager() {
   // manifest
   this.manifestUrl = '';
   this.manifest  = {};
@@ -60,16 +61,16 @@ var AssetManager = function() {
   this.canPlay.ogg = audio.canPlayType('audio/ogg; codecs="vorbis"').replace(/no/, '');
   this.canPlay.aac = audio.canPlayType('audio/aac;').replace(/no/, '');
   this.canPlay.m4a = (audio.canPlayType('audio/x-m4a;') || this.canPlay.aac).replace(/no/, '');
-};
-var AM = AssetManager.prototype;
+}
 
 /**
  * Load an asset manifest file.
  * @public
+ * @memberof AssetManager
  * @param {string} url - The URL to the asset manifest file.
- * @returns Deferred promise.
+ * @returns {Promise} A deferred promise.
  */
-AM.loadManifest = function(url) {
+AssetManager.prototype.loadManifest = function(url) {
   var _this = this;
   var deferred = q.defer();
   var i, len, bundle, bundles;
@@ -138,13 +139,15 @@ AM.loadManifest = function(url) {
 /**
  * Create a bundle.
  * @public
- * @param {string|array} bundle     - The name of the bundle(s).
- * @param {boolean}      isPromise  - If this function is called by a function that uses a promise.
+ * @memberof AssetManager
+ * @param {string|array} bundle    - The name of the bundle(s).
+ * @param {boolean}      isPromise - If this function is called by a function that uses a promise.
+ * @throws {Error} If the bundle name already exists.
  * @example
  * AssetManager.createBundle('bundleName');
  * AssetManager.createBundle(['bundle1', 'bundle2']);
  */
-AM.createBundle = function(bundle, isPromise) {
+AssetManager.prototype.createBundle = function(bundle, isPromise) {
   try {
     // list of bundle names
     if (bundle instanceof Array) {
@@ -170,14 +173,15 @@ AM.createBundle = function(bundle, isPromise) {
 /**
  * Load all assets in a bundle.
  * @public
+ * @memberof AssetManager
  * @param {string|array} bundle - The name of the bundle(s).
- * @returns Deferred promise.
- * @throws If the bundle has not be created
+ * @returns {Promise} A deferred promise.
+ * @throws {ReferenceError} If the bundle has not be created.
  * @example
  * AssetManager.loadBundle('bundleName');
  * AssetManager.loadBundle(['bundle1', 'bundle2']);
  */
-AM.loadBundle = function(bundle) {
+AssetManager.prototype.loadBundle = function(bundle) {
   var _this = this;
   var numLoaded = 0;
   var numAssets = 0;
@@ -230,15 +234,16 @@ AM.loadBundle = function(bundle) {
 /**
  * Add an asset to a bundle.
  * @public
+ * @memberof AssetManager
  * @param {string}  bundleName - The name of the bundle.
- * @param {object}  asset      - The asset to add to the bundle.
+ * @param {object}  asset      - The asset(s) to add to the bundle.
  * @param {boolean} isPromise  - If this function is called by a function that uses a promise.
- * @throws If the bundle has not been created or if the asset is empty or not an object.
+ * @throws {ReferenceError} If the bundle has not be created.
  * @example
- * AssetManager.addAsset('bundleName', {'assetName': 'assetUrl'});
- * AssetManager.addAsset('bundleName', {'asset1': 'asset1Url', 'asset2': 'asset2Url'});
+ * AssetManager.addBundleAsset('bundleName', {'assetName': 'assetUrl'});
+ * AssetManager.addBundleAsset('bundleName', {'asset1': 'asset1Url', 'asset2': 'asset2Url'});
  */
-AM.addBundleAsset = function(bundleName, asset, isPromise) {
+AssetManager.prototype.addBundleAsset = function(bundleName, asset, isPromise) {
   if (!this.bundles[bundleName]) {
     var err = new ReferenceError('Bundle not created');
 
@@ -261,13 +266,16 @@ AM.addBundleAsset = function(bundleName, asset, isPromise) {
 
 /**
  * Load an asset.
- * @param {object} asset - The asset to load.
- * @returns Deferred promise.
+ * @public
+ * @memberof AssetManager
+ * @param {object} asset - The asset(s) to load.
+ * @returns {Promise} A deferred promise.
+ * @throws {TypeError} If the asset type is not supported.
  * @example
  * AssetManager.loadAsset({'assetName': 'assetUrl'});
  * AssetManager.loadAsset({'asset1': 'asset1Url', 'asset2': 'asset2Url'});
  */
-AM.loadAsset = function(asset) {
+AssetManager.prototype.loadAsset = function(asset) {
   var _this = this;
   var numLoaded = 0;
   var numAssets = countAssets(asset);
@@ -433,12 +441,13 @@ AM.loadAsset = function(asset) {
 
 /**
  * Load a JavaScript file.
- * NOTE: This function does not add the asset to the assets dictionary.
+ * <p><strong>NOTE:</strong> This function does not add the asset to the assets dictionary.</p>
  * @public
+ * @memberof AssetManager
  * @param {string} url - The URL to the JavaScript file.
- * @returns Deferred promise.
+ * @returns {Promise} A deferred promise.
  */
-AM.loadScript = function(url) {
+AssetManager.prototype.loadScript = function(url) {
   var deferred = q.defer();
   var script = document.createElement('script');
   script.async = true;
@@ -457,16 +466,20 @@ AM.loadScript = function(url) {
 
 /**
  * Load a CSS file.
- * Because of the lack of onload and onerror support for <link> tags, we need to load the CSS
- * file via ajax and then put the contents of the file into a <style> tag.
- * @see {@link http://pieisgood.org/test/script-link-events/}
- * NOTE: This function does not add the asset to the assets dictionary.
+ * <p><strong>NOTE:</strong> This function does not add the asset to the assets dictionary.</p>
  * @public
+ * @memberof AssetManager
  * @param {string} url - The URL to the CSS file.
- * @returns Deferred promise.
+ * @returns {Promise} A deferred promise.
  */
-AM.loadCSS = function(url) {
+AssetManager.prototype.loadCSS = function(url) {
   var deferred = q.defer();
+
+  /*
+   * Because of the lack of onload and onerror support for &lt;link> tags, we need to load the CSS
+   * file via ajax and then put the contents of the file into a &lt;style> tag.
+   * @see {@link http://pieisgood.org/test/script-link-events/}
+   */
   var req = new XMLHttpRequest();
   req.addEventListener('load', function CSSLoaded() {
     // ensure we have a css file before creating the <style> tag
@@ -491,12 +504,12 @@ AM.loadCSS = function(url) {
 /**
  * Load a JSON file.
  * @public
- * @param {string} url - The URL to the asset.
- * @returns Deferred promise.
- * @resolves Parsed JSON.
- * @throws When the JSON file fails to load.
+ * @memberof AssetManager
+ * @param {string} url - The URL to the JSON file.
+ * @returns {Promise} A deferred promise. Resolves with the parsed JSON.
+ * @throws {Error} When the JSON file fails to load.
  */
-AM.loadJSON = function(url) {
+AssetManager.prototype.loadJSON = function(url) {
   var deferred = q.defer();
   var req = new XMLHttpRequest();
   req.addEventListener('load', function JSONLoaded() {
@@ -523,14 +536,16 @@ AM.loadJSON = function(url) {
 /**
  * Add a bundle to the bundles dictionary.
  * @private
+ * @memberof AssetManager
  * @param {string} bundleName - The name of the bundle.
- * @throws If the bundle already exists.
+ * @throws {Error} If the bundle already exists.
  */
 function addBundle(bundleName) {
   if (this.bundles[bundleName]) {
     throw new Error('Bundle \'' + bundleName + '\' already created');
   }
   else {
+    // make the status property in-enumerable so it isn't returned in a for-in loop
     this.bundles[bundleName] = Object.create(Object.prototype, { status: {
       value: 'created',
       writable: true,
@@ -543,6 +558,7 @@ function addBundle(bundleName) {
 /**
  * Count the number of assets.
  * @private
+ * @memberof AssetManager
  * @param {object} assets - The assets to count.
  * @return {number} Total number of assets.
  */
@@ -577,6 +593,7 @@ function countAssets(assets) {
 /**
  * Test if an object is a string.
  * @private
+ * @memberof AssetManager
  * @param {object} obj - The object to test.
  * @returns {boolean} True if the object is a string.
  */
@@ -585,11 +602,11 @@ function isString(obj) {
 }
 
 /**
- * Return the type of file based on it's extension.
+ * Return the type of asset based on it's extension.
  * @private
+ * @memberof AssetManager
  * @param {string} url - The URL to the asset.
  * @returns {string} image, audio, js, json.
- * @throws If the file type is not recognized.
  */
 function getType(url) {
   if (url.match(/\.(jpeg|jpg|gif|png)$/)) {
@@ -610,10 +627,14 @@ function getType(url) {
 }
 
 /**
- * Return the extension of a file.
- * @see {@link http://jsperf.com/extract-file-extension}
+ * Return the extension of an asset.
+ * @private
+ * @memberof AssetManager
+ * @param {string} url - The URL to the asset.
+ * @returns {string}
  */
 function getExtension(url) {
+  // @see {@link http://jsperf.com/extract-file-extension}
   return url.substr((~-url.lastIndexOf(".") >>> 0) + 2);
 }
 
@@ -621,8 +642,10 @@ function getExtension(url) {
  * Format Error messages for better output.
  * Use this function right before passing the Error to the user.
  * @private
+ * @memberOf AssetManager
  * @param {Error}  err - Error object.
  * @param {string} msg - Custom message.
+ * @returns {string} The formated err message.
  */
 function formatError(err, msg) {
   err.originalMessage = err.message;
