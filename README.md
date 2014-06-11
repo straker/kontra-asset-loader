@@ -79,7 +79,7 @@ AM.loadManifest("path/to/manifest").then(
 function finishCallback() {
   console.log("Finished loading manifest.");
 }, function errorCallback(err) {
-  console.err(err.message);
+  console.error(err.message);
 }, function progressCallback(progress) {
   console.log("Loaded " + progress.loaded + " of " + progress.total + " assets.");
 });
@@ -102,7 +102,7 @@ AM.loadAsset({
 function finishCallback() {
   console.log("Finished loading all assets.");
 }, function errorCallback(err) {
-  console.err(err.message);
+  console.error(err.message);
 }, function progressCallback(progress) {
   console.log("Loaded " + progress.loaded + " of " + progress.total + " assets.");
 });
@@ -126,7 +126,7 @@ AM.loadJSON("path/to/json").then(
 function finishCallback(json) {
   console.log("Finished loading json.");
 }, function errorCallback(err) {
-  console.err(err.message);
+  console.error(err.message);
 });
 ```
 
@@ -158,7 +158,7 @@ AM.loadBundle("bundleName").then(
 function finishCallback() {
   console.log("Finished loading bundle.");
 }, function errorCallback(err) {
-  console.err(err.message);
+  console.error(err.message);
 }, function progressCallback(progress) {
   console.log("Loaded " + progress.loaded + " of " + progress.total + " assets.");
 });
