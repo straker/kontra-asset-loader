@@ -11,6 +11,10 @@ AssetManager is a JavaScript library that makes it easy to load assets for your 
 
 AssetManager depends on the [qLite.js](https://github.com/straker/qLite) library (3KB minified) for the promises API. It is included in the `assetManager.build.js` and `assetManager.min.js`, so there is no need to include it separately into your game.
 
+## Documentation
+
+Visit [my site](http://sklambert.com/assetManager/docs/) for the full AssetManager documentation, or you can view the docs from this repo using [htmlPreview](http://htmlpreview.github.io/?https://raw.github.com/straker/AssetManager/master/docs/index.html).
+
 ## Usage Examples
 
 ### Getting Started
