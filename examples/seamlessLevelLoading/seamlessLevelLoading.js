@@ -6,11 +6,11 @@
  * Audio assets by BossLevelVGM {@link http://opengameart.org/users/bosslevelvgm}
  */
 (function() {
-  var AM = new AssetManager();
+  var AL = new AssetLoader();
 
   // load the manifest
   console.log('====== Loading level 1 ======');
-  AM.loadManifest('manifest.json').then(function() {
+  AL.loadManifest('manifest.json').then(function() {
     showPlayButton();
   }, function(err) {
     console.error(err.message);
@@ -99,8 +99,8 @@
       }
     },
     draw: function() {
-      ctx.drawImage(AM.assets.bg, this.x, this.y);
-      ctx.drawImage(AM.assets.bg, this.x + canvas.width, this.y);
+      ctx.drawImage(AL.assets.bg, this.x, this.y);
+      ctx.drawImage(AL.assets.bg, this.x + canvas.width, this.y);
     }
   }
 
@@ -116,12 +116,12 @@
 
     // vehicle moving to the left
     if (dir == -1) {
-      this.img = AM.assets[type + '_left'];
+      this.img = AL.assets[type + '_left'];
       this.speed = speeds[lane] * dir - speed;
     }
     // vehicle moving to the right
     else {
-      this.img = AM.assets[type];
+      this.img = AL.assets[type];
       this.speed = speeds[lane] * dir;
     }
 
@@ -177,14 +177,14 @@
    */
   function loadBundle(bundle) {
     console.log('\n====== Loading level ' + (level+1) + ' ======');
-    AM.loadBundle(bundle).then(function() {
-      AM.bundles[bundle];
+    AL.loadBundle(bundle).then(function() {
+      AL.bundles[bundle];
 
       // add the new vehicles types
-      for (assetName in AM.bundles[bundle]) {
+      for (assetName in AL.bundles[bundle]) {
 
         // ignore the assets that are made for moving left
-        if (AM.bundles[bundle].hasOwnProperty(assetName) && assetName.indexOf('_left') === -1) {
+        if (AL.bundles[bundle].hasOwnProperty(assetName) && assetName.indexOf('_left') === -1) {
           types.push(assetName);
         }
       }
@@ -260,7 +260,7 @@
 
       background.draw();
 
-      ctx.drawImage(AM.assets.player, player.x, player.y);
+      ctx.drawImage(AL.assets.player, player.x, player.y);
 
       // draw vehicles
       for (i = 0, len = vehicles.length; i < len; i++) {
@@ -272,11 +272,11 @@
       ctx.fillText('Score: ' + score + 'm', canvas.width - 140, 30);
 
       // load level 2 at 10 seconds
-      if (AM.bundles.level2.status === 'created' && now - begin > 10000) {
+      if (AL.bundles.level2.status === 'created' && now - begin > 10000) {
         loadBundle('level2');
       }
       // load level 3 at 30 seconds
-      if (AM.bundles.level3.status === 'created' && now - begin > 30000) {
+      if (AL.bundles.level3.status === 'created' && now - begin > 30000) {
         loadBundle('level3');
       }
     }
@@ -290,8 +290,8 @@
    */
   function start() {
     types = ['car', 'motorcycle'];
-    AM.assets.music.play();
-    AM.assets.music.loop = true;
+    AL.assets.music.play();
+    AL.assets.music.loop = true;
     last = begin = new Date().getTime();
     requestAnimFrame(animate);
   }
@@ -300,7 +300,7 @@
    * Game over
    */
   function gameOver() {
-    AM.assets.music.pause();
+    AL.assets.music.pause();
   }
 
   /**

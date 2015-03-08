@@ -2,17 +2,17 @@ function getCSS(id, property) {
   return window.getComputedStyle(document.getElementById(id),null).getPropertyValue(property);
 }
 
-module('AssetManager', {
+module('AssetLoader', {
   setup: function() {
-    AM = new AssetManager();
+    AL = new AssetLoader();
   },
   teardown: function() {
-    AM = undefined;
+    AL = undefined;
   }
 });
 
 test('should be instantiable', function() {
-  ok(new AssetManager(), 'successfully called new on AssetManager.');
+  ok(new AssetLoader(), 'successfully called new on AssetLoader.');
 });
 
 
@@ -24,19 +24,19 @@ test('should be instantiable', function() {
  * loadScript
  *
  ***************************************************************/
-module('AssetManager.loadScript', {
+module('AssetLoader.loadScript', {
   setup: function() {
-    AM = new AssetManager();
+    AL = new AssetLoader();
   },
   teardown: function() {
-    AM = undefined;
+    AL = undefined;
   }
 });
 
 asyncTest('should load the script into the DOM.', function() {
   expect(2);
 
-  AM.loadScript('//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js').then(function() {
+  AL.loadScript('//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js').then(function() {
     equal($('body').length, 1, 'jQuery successfully loaded.');
     equal($('script[src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"]').length, 1, 'script was added to the DOM.');
     start();
@@ -48,7 +48,7 @@ asyncTest('should load the script into the DOM.', function() {
 asyncTest('should throw an error if the script fails to load.', function() {
   expect(1);
 
-  AM.loadScript('someFile.js').then(function() {
+  AL.loadScript('someFile.js').then(function() {
   }, function(err) {
     ok(1, 'deferred promise was rejected.');
     start();
@@ -63,19 +63,19 @@ asyncTest('should throw an error if the script fails to load.', function() {
  * loadCSS
  *
  ***************************************************************/
-module('AssetManager.loadCSS', {
+module('AssetLoader.loadCSS', {
   setup: function() {
-    AM = new AssetManager();
+    AL = new AssetLoader();
   },
   teardown: function() {
-    AM = undefined;
+    AL = undefined;
   }
 });
 
 asyncTest('should load the css into the DOM.', function() {
   expect(2);
 
-  AM.loadCSS('./css/test.css').then(function() {
+  AL.loadCSS('./css/test.css').then(function() {
     equal(document.querySelectorAll('style[data-url="./css/test.css"]').length, 1, 'css was added to the DOM.');
     equal(getCSS('testDiv', 'position'), 'relative', 'css successfully loaded.');
     start();
@@ -87,7 +87,7 @@ asyncTest('should load the css into the DOM.', function() {
 asyncTest('should throw an error if the css fails to load.', function() {
   expect(1);
 
-  AM.loadCSS('someFile.css').then(function() {
+  AL.loadCSS('someFile.css').then(function() {
   }, function(err) {
     ok(1, 'deferred promise was rejected.');
     start();
@@ -103,19 +103,19 @@ asyncTest('should throw an error if the css fails to load.', function() {
  * loadJSON
  *
  ***************************************************************/
-module('AssetManager.loadJSON', {
+module('AssetLoader.loadJSON', {
   setup: function() {
-    AM = new AssetManager();
+    AL = new AssetLoader();
   },
   teardown: function() {
-    AM = undefined;
+    AL = undefined;
   }
 });
 
 asyncTest('should load the parsed JSON.', function() {
   expect(3);
 
-  AM.loadJSON('./json/test.json').then(function(json) {
+  AL.loadJSON('./json/test.json').then(function(json) {
     ok(json, 'json successfully loaded.');
     ok(json.test, 'property \'test\' exists.');
     equal(json.test, 'hello', 'property \'test\' is correct.');
@@ -128,7 +128,7 @@ asyncTest('should load the parsed JSON.', function() {
 asyncTest('should throw an error if the json fails to load.', function() {
   expect(1);
 
-  AM.loadCSS('someFile.json').then(function() {
+  AL.loadCSS('someFile.json').then(function() {
   }, function(err) {
     ok(1, 'deferred promise was rejected.');
     start();
@@ -144,31 +144,31 @@ asyncTest('should throw an error if the json fails to load.', function() {
  * createBundle
  *
  ***************************************************************/
-module('AssetManager.createBundle', {
+module('AssetLoader.createBundle', {
   setup: function() {
-    AM = new AssetManager();
+    AL = new AssetLoader();
   },
   teardown: function() {
-    AM = undefined;
+    AL = undefined;
   }
 });
 
 test('should accept a string as an argument.', function() {
-  AM.createBundle('testBundle');
-  ok(AM.bundles.testBundle, 'bundle \'testBundle\' successfully created.');
+  AL.createBundle('testBundle');
+  ok(AL.bundles.testBundle, 'bundle \'testBundle\' successfully created.');
 });
 
 test('should accept an array as an argument.', function() {
-  AM.createBundle(['anotherBundle', 'anotherSecondBundle']);
-  ok(AM.bundles.anotherBundle, 'bundle \'anotherBundle\' successfully created.');
-  ok(AM.bundles.anotherSecondBundle, 'bundle \'anotherSecondBundle\' successfully created.');
+  AL.createBundle(['anotherBundle', 'anotherSecondBundle']);
+  ok(AL.bundles.anotherBundle, 'bundle \'anotherBundle\' successfully created.');
+  ok(AL.bundles.anotherSecondBundle, 'bundle \'anotherSecondBundle\' successfully created.');
 });
 
 test('should throw an error if the bundle name already exists.', function() {
-  AM.createBundle('testBundle');
+  AL.createBundle('testBundle');
   throws(
     function() {
-      AM.createBundle('testBundle');
+      AL.createBundle('testBundle');
     },
     'bundle \'testBundle\' already created.'
   );
@@ -183,34 +183,34 @@ test('should throw an error if the bundle name already exists.', function() {
  * addBundleAsset
  *
  ***************************************************************/
-module('AssetManager.addBundleAsset', {
+module('AssetLoader.addBundleAsset', {
   setup: function() {
-    AM = new AssetManager();
+    AL = new AssetLoader();
   },
   teardown: function() {
-    AM = undefined;
+    AL = undefined;
   }
 });
 
 test('should add a single asset to a bundle.', function() {
-  AM.createBundle('myBundle');
-  AM.addBundleAsset('myBundle', {'myAsset': 'myAssetUrl'});
+  AL.createBundle('myBundle');
+  AL.addBundleAsset('myBundle', {'myAsset': 'myAssetUrl'});
 
-  equal(AM.bundles.myBundle.myAsset, 'myAssetUrl', 'asset \'myAsset\' successfully added to the bundle \'myBundle\'.');
+  equal(AL.bundles.myBundle.myAsset, 'myAssetUrl', 'asset \'myAsset\' successfully added to the bundle \'myBundle\'.');
 });
 
 test('should add multiple assets to a bundle.', function() {
-  AM.createBundle('myBundle');
-  AM.addBundleAsset('myBundle', {'myAsset1': 'myAsset1Url', 'myAsset2': 'myAsset2Url'});
+  AL.createBundle('myBundle');
+  AL.addBundleAsset('myBundle', {'myAsset1': 'myAsset1Url', 'myAsset2': 'myAsset2Url'});
 
-  equal(AM.bundles.myBundle.myAsset1, 'myAsset1Url', 'asset \'myAsset1\' successfully added to the bundle \'myBundle\'.');
-  equal(AM.bundles.myBundle.myAsset2, 'myAsset2Url', 'asset \'myAsset2\' successfully added to the bundle \'myBundle\'.');
+  equal(AL.bundles.myBundle.myAsset1, 'myAsset1Url', 'asset \'myAsset1\' successfully added to the bundle \'myBundle\'.');
+  equal(AL.bundles.myBundle.myAsset2, 'myAsset2Url', 'asset \'myAsset2\' successfully added to the bundle \'myBundle\'.');
 });
 
 test('should throw an error if the bundle has not been created.', function() {
   throws(
     function() {
-      AM.addBundleAsset('myBundle', {'myAsset1': 'myAsset1Url'});
+      AL.addBundleAsset('myBundle', {'myAsset1': 'myAsset1Url'});
     },
     'bundle \'myBundle\' not created before adding assets.'
   );
@@ -225,12 +225,12 @@ test('should throw an error if the bundle has not been created.', function() {
  * loadAsset
  *
  ***************************************************************/
-module('AssetManager.loadAsset', {
+module('AssetLoader.loadAsset', {
   setup: function() {
-    AM = new AssetManager();
+    AL = new AssetLoader();
   },
   teardown: function() {
-    AM = undefined;
+    AL = undefined;
   }
 });
 
@@ -242,29 +242,29 @@ asyncTest('should load image assets as Images.', function() {
     --counter || start();
   }
 
-  AM.loadAsset({'jpeg': './imgs/bullet.jpeg'}).then(function() {
-    ok(AM.assets.jpeg instanceof Image, '.jpeg loaded as an Image.');
+  AL.loadAsset({'jpeg': './imgs/bullet.jpeg'}).then(function() {
+    ok(AL.assets.jpeg instanceof Image, '.jpeg loaded as an Image.');
     done();
   }, function(err) {
     done();
   });
 
-  AM.loadAsset({'jpg': './imgs/bullet.jpg'}).then(function() {
-    ok(AM.assets.jpg instanceof Image, '.jpg loaded as an Image.');
+  AL.loadAsset({'jpg': './imgs/bullet.jpg'}).then(function() {
+    ok(AL.assets.jpg instanceof Image, '.jpg loaded as an Image.');
     done();
   }, function(err) {
     done();
   });
 
-  AM.loadAsset({'gif': './imgs/bullet.gif'}).then(function() {
-    ok(AM.assets.gif instanceof Image, '.gif loaded as an Image.');
+  AL.loadAsset({'gif': './imgs/bullet.gif'}).then(function() {
+    ok(AL.assets.gif instanceof Image, '.gif loaded as an Image.');
     done();
   }, function(err) {
     done();
   });
 
-  AM.loadAsset({'png': './imgs/bullet.png'}).then(function() {
-    ok(AM.assets.png instanceof Image, '.png loaded as an Image.');
+  AL.loadAsset({'png': './imgs/bullet.png'}).then(function() {
+    ok(AL.assets.png instanceof Image, '.png loaded as an Image.');
     done();
   }, function(err) {
     done();
@@ -274,7 +274,7 @@ asyncTest('should load image assets as Images.', function() {
 asyncTest('should throw an error if the browser cannot play an audio format.', function() {
   expect(1);
 
-  AM.loadAsset({'nope': ['./audio/shoot.nope']}).then(function() {
+  AL.loadAsset({'nope': ['./audio/shoot.nope']}).then(function() {
   }, function(err) {
     ok(1, 'browser could not load asset.');
     start();
@@ -285,10 +285,10 @@ asyncTest('should load a single audio assets as Audios.', function() {
   expect(1);
 
   // find the first audio format that is playable and use it for the test
-  for (var format in AM.canPlay) {
-    if (AM.canPlay.hasOwnProperty(format) && AM.canPlay[format]) {
-      AM.loadAsset({'music': './audio/shoot.' + format}).then(function() {
-        ok(AM.assets.music instanceof Audio, 'asset \'music\' loaded as an Audio.');
+  for (var format in AL.canPlay) {
+    if (AL.canPlay.hasOwnProperty(format) && AL.canPlay[format]) {
+      AL.loadAsset({'music': './audio/shoot.' + format}).then(function() {
+        ok(AL.assets.music instanceof Audio, 'asset \'music\' loaded as an Audio.');
         start();
       }, function(err) {
         start();
@@ -301,8 +301,8 @@ asyncTest('should load a single audio assets as Audios.', function() {
 asyncTest('should load multiple audio assets as Audios.', function() {
   expect(1);
 
-  AM.loadAsset({'shoot': ['./audio/shoot.wav', './audio/shoot.mp3', './audio/shoot.ogg', './audio/shoot.aac', './audio/shoot.m4a']}).then(function() {
-    ok(AM.assets.shoot instanceof Audio, 'asset \'shoot\' loaded as an Audio.');
+  AL.loadAsset({'shoot': ['./audio/shoot.wav', './audio/shoot.mp3', './audio/shoot.ogg', './audio/shoot.aac', './audio/shoot.m4a']}).then(function() {
+    ok(AL.assets.shoot instanceof Audio, 'asset \'shoot\' loaded as an Audio.');
     start();
   }, function(err) {
     start();
@@ -312,7 +312,7 @@ asyncTest('should load multiple audio assets as Audios.', function() {
 asyncTest('should load .js assets.', function() {
   expect(1);
 
-  AM.loadAsset({'testScript': './js/testScript.js'}).then(function() {
+  AL.loadAsset({'testScript': './js/testScript.js'}).then(function() {
     equal(window.myGlobalVariable, 'loaded', '.js loaded as JavaScript.');
     start();
   }, function(err) {
@@ -323,7 +323,7 @@ asyncTest('should load .js assets.', function() {
 asyncTest('should load .css assets.', function() {
   expect(1);
 
-  AM.loadAsset({'testCSS': './css/testCSS.css'}).then(function() {
+  AL.loadAsset({'testCSS': './css/testCSS.css'}).then(function() {
     equal(getCSS('testDiv', 'position'), 'absolute', '.css loaded as Stylesheet.');
     start();
   }, function(err) {
@@ -334,8 +334,8 @@ asyncTest('should load .css assets.', function() {
 asyncTest('should load .json assets.', function() {
   expect(1);
 
-  AM.loadAsset({'manifest': './json/test.json'}).then(function(json) {
-    ok(AM.assets.manifest, '.json loaded as JSON.');
+  AL.loadAsset({'manifest': './json/test.json'}).then(function(json) {
+    ok(AL.assets.manifest, '.json loaded as JSON.');
     start();
   }, function(err) {
     start();
@@ -345,7 +345,7 @@ asyncTest('should load .json assets.', function() {
 asyncTest('should throw an error if the file extension is not supported.', function() {
   expect(1);
 
-  AM.loadAsset({'blah': 'blah.blah'}).then(function() {
+  AL.loadAsset({'blah': 'blah.blah'}).then(function() {
   }, function(err) {
     ok(1, 'file extension \.blah\' not supported.');
     start();
@@ -360,14 +360,14 @@ asyncTest('should immediately resolve if the asset is empty.', function() {
     --counter || start();
   }
 
-  AM.loadAsset({}).then(function() {
+  AL.loadAsset({}).then(function() {
     ok(1, 'deferred resolved with empty object.');
     done();
   }, function(err) {
     done();
   });
 
-  AM.loadAsset().then(function() {
+  AL.loadAsset().then(function() {
     ok(1, 'deferred resolved with undefined.');
     done();
   }, function(err) {
@@ -378,7 +378,7 @@ asyncTest('should immediately resolve if the asset is empty.', function() {
 asyncTest('should propagate errors.', function() {
   expect(1);
 
-  AM.loadAsset({'test': 'test.css'}).then(function() {
+  AL.loadAsset({'test': 'test.css'}).then(function() {
   }, function(err) {
     ok(1, 'error propagated.');
     start();
@@ -388,7 +388,7 @@ asyncTest('should propagate errors.', function() {
 asyncTest('should notify user of progress and properly count the number of assets for a single asset.', function() {
   expect(2);
 
-  AM.loadAsset({'jpeg': './imgs/bullet.jpeg'}).then(function() {
+  AL.loadAsset({'jpeg': './imgs/bullet.jpeg'}).then(function() {
   }, function(err) {
   }, function(progress) {
     ok(1, 'progress event fired ' + progress.loaded + ' time for single asset.');  // should fire once
@@ -402,7 +402,7 @@ asyncTest('should notify user of progress and properly count the number of asset
 asyncTest('should notify user of progress and properly count the number of assets for multiple assets.', function() {
   expect(5);
 
-  AM.loadAsset({
+  AL.loadAsset({
     'jpeg': './imgs/bullet.jpeg',
     'manifest': './json/test.json',
     'testScript': './js/testScript.js',
@@ -427,19 +427,19 @@ asyncTest('should notify user of progress and properly count the number of asset
  * loadBunle
  *
  ***************************************************************/
- module('AssetManager.loadBundle', {
+ module('AssetLoader.loadBundle', {
   setup: function() {
-    AM = new AssetManager();
+    AL = new AssetLoader();
   },
   teardown: function() {
-    AM = undefined;
+    AL = undefined;
   }
 });
 
 asyncTest('should throw an error if the bundle has not been created.', function() {
   expect(1);
 
-  AM.loadBundle('myBundle').then(function() {
+  AL.loadBundle('myBundle').then(function() {
   }, function(err) {
     ok(1, 'bundle \'myBundle\' not created.');
     start();
@@ -449,11 +449,11 @@ asyncTest('should throw an error if the bundle has not been created.', function(
 asyncTest('should load all assets from a single bundle.', function() {
   expect(1);
 
-  AM.createBundle('myBundle');
-  AM.addBundleAsset('myBundle', {'bullet': './imgs/bullet.jpeg'});
+  AL.createBundle('myBundle');
+  AL.addBundleAsset('myBundle', {'bullet': './imgs/bullet.jpeg'});
 
-  AM.loadBundle('myBundle').then(function() {
-    ok(AM.assets.bullet, 'asset \'bullet\' successfully loaded from bundle \'myBundle\'.');
+  AL.loadBundle('myBundle').then(function() {
+    ok(AL.assets.bullet, 'asset \'bullet\' successfully loaded from bundle \'myBundle\'.');
     start();
   });
 });
@@ -461,13 +461,13 @@ asyncTest('should load all assets from a single bundle.', function() {
 asyncTest('should load all assets from multiple bundles.', function() {
   expect(2);
 
-  AM.createBundle(['myBundle', 'otherBundle']);
-  AM.addBundleAsset('myBundle', {'bullet': './imgs/bullet.jpeg'});
-  AM.addBundleAsset('otherBundle', {'other': './imgs/bullet.jpeg'});
+  AL.createBundle(['myBundle', 'otherBundle']);
+  AL.addBundleAsset('myBundle', {'bullet': './imgs/bullet.jpeg'});
+  AL.addBundleAsset('otherBundle', {'other': './imgs/bullet.jpeg'});
 
-  AM.loadBundle(['myBundle', 'otherBundle']).then(function() {
-    ok(AM.assets.bullet, 'asset \'bullet\' successfully loaded from bundle \'myBundle\'.');
-    ok(AM.assets.other, 'asset \'other\' successfully loaded from bundle \'otherBundle\'.')
+  AL.loadBundle(['myBundle', 'otherBundle']).then(function() {
+    ok(AL.assets.bullet, 'asset \'bullet\' successfully loaded from bundle \'myBundle\'.');
+    ok(AL.assets.other, 'asset \'other\' successfully loaded from bundle \'otherBundle\'.')
     start();
   });
 });
@@ -475,10 +475,10 @@ asyncTest('should load all assets from multiple bundles.', function() {
 asyncTest('should propagate errors.', function() {
   expect(1);
 
-  AM.createBundle('myBundle');
-  AM.addBundleAsset('myBundle', {'test': 'test.css'})
+  AL.createBundle('myBundle');
+  AL.addBundleAsset('myBundle', {'test': 'test.css'})
 
-  AM.loadBundle('myBundle').then(function() {
+  AL.loadBundle('myBundle').then(function() {
   }, function(err) {
     ok(1, 'error propagated.');
     start();
@@ -488,10 +488,10 @@ asyncTest('should propagate errors.', function() {
 asyncTest('should notify user of progress and properly count the number of assets for a single bundle with a single asset.', function() {
   expect(2);
 
-  AM.createBundle('myBundle');
-  AM.addBundleAsset('myBundle', {'bullet': './imgs/bullet.jpeg'});
+  AL.createBundle('myBundle');
+  AL.addBundleAsset('myBundle', {'bullet': './imgs/bullet.jpeg'});
 
-  AM.loadBundle('myBundle').then(function() {
+  AL.loadBundle('myBundle').then(function() {
   }, function(err) {
   }, function(progress) {
     ok(1, 'progress event fired ' + progress.loaded + ' time for bundle \'myBundle\'.');  // should fire once
@@ -505,15 +505,15 @@ asyncTest('should notify user of progress and properly count the number of asset
 asyncTest('should notify user of progress and properly count the number of assets for a single bundle with a multiple assets.', function() {
   expect(5);
 
-  AM.createBundle('otherBundle');
-  AM.addBundleAsset('otherBundle', {
+  AL.createBundle('otherBundle');
+  AL.addBundleAsset('otherBundle', {
     'jpeg': './imgs/bullet.jpeg',
     'manifest': './json/test.json',
     'testScript': './js/testScript.js',
     'testCSS': './css/testCSS.css'
   });
 
-  AM.loadBundle('otherBundle').then(function() {
+  AL.loadBundle('otherBundle').then(function() {
   }, function(err) {
   }, function(progress) {
     ok(1, 'progress event fired ' + progress.loaded + ' ' + (progress.loaded === 1 ? 'time' : 'times') + ' for bundle \'otherBundle\'.');  // should fire four times
@@ -527,16 +527,16 @@ asyncTest('should notify user of progress and properly count the number of asset
 asyncTest('should notify user of progress and properly count the number of assets for a multiple bundles.', function() {
   expect(6);
 
-  AM.createBundle(['myBundle', 'otherBundle']);
-  AM.addBundleAsset('myBundle', {'bullet': './imgs/bullet.jpeg'});
-  AM.addBundleAsset('otherBundle', {
+  AL.createBundle(['myBundle', 'otherBundle']);
+  AL.addBundleAsset('myBundle', {'bullet': './imgs/bullet.jpeg'});
+  AL.addBundleAsset('otherBundle', {
     'jpeg': './imgs/bullet.jpeg',
     'manifest': './json/test.json',
     'testScript': './js/testScript.js',
     'testCSS': './css/testCSS.css'
   });
 
-  AM.loadBundle(['myBundle', 'otherBundle']).then(function() {
+  AL.loadBundle(['myBundle', 'otherBundle']).then(function() {
   }, function(err) {
   }, function(progress) {
     ok(1, 'progress event fired ' + progress.loaded + ' ' + (progress.loaded === 1 ? 'time' : 'times') + ' for bundles \'myBundle\' and \'otherBundle\'.');  // should fire five times
@@ -556,21 +556,21 @@ asyncTest('should notify user of progress and properly count the number of asset
  * loadManifest
  *
  ***************************************************************/
-module('AssetManager.loadManifest', {
+module('AssetLoader.loadManifest', {
   setup: function() {
-    AM = new AssetManager();
+    AL = new AssetLoader();
   },
   teardown: function() {
-    AM = undefined;
+    AL = undefined;
   }
 });
 
 asyncTest('should load all bundles in the manifest.', function() {
   expect(2);
 
-  AM.loadManifest('./json/test.json').then(function() {
-    ok(AM.bundles.level1, 'bundle \'level1\' successfully loaded.');
-    ok(AM.bundles.level2, 'bundle \'level2\' successfully loaded.');
+  AL.loadManifest('./json/test.json').then(function() {
+    ok(AL.bundles.level1, 'bundle \'level1\' successfully loaded.');
+    ok(AL.bundles.level2, 'bundle \'level2\' successfully loaded.');
     start();
   });
 });
@@ -578,9 +578,9 @@ asyncTest('should load all bundles in the manifest.', function() {
 asyncTest('should add all assets to their bundles.', function() {
   expect(2);
 
-  AM.loadManifest('./json/test.json').then(function() {
-    ok(AM.bundles.level1.bg, 'asset \'bg\' successfully added to bundle \'level1\'.');
-    ok(AM.bundles.level2.bg, 'asset \'bg\' successfully added to bundle \'level2\'.');
+  AL.loadManifest('./json/test.json').then(function() {
+    ok(AL.bundles.level1.bg, 'asset \'bg\' successfully added to bundle \'level1\'.');
+    ok(AL.bundles.level2.bg, 'asset \'bg\' successfully added to bundle \'level2\'.');
     start();
   });
 });
@@ -588,8 +588,8 @@ asyncTest('should add all assets to their bundles.', function() {
 asyncTest('should not auto load assets if property \'loadBundles\' is false.', function() {
   expect(1);
 
-  AM.loadManifest('./json/test.json').then(function() {
-    ok(!AM.assets.bg, 'asset \'bg\' not loaded.');
+  AL.loadManifest('./json/test.json').then(function() {
+    ok(!AL.assets.bg, 'asset \'bg\' not loaded.');
     start();
   });
 });
@@ -597,8 +597,8 @@ asyncTest('should not auto load assets if property \'loadBundles\' is false.', f
 asyncTest('should auto load assets if property \'loadBundles\' is set to a single bundle name.', function() {
   expect(1);
 
-  AM.loadManifest('./json/loadBundlesSingle.json').then(function() {
-    ok(AM.assets.bg, 'asset \'bg\' loaded.');
+  AL.loadManifest('./json/loadBundlesSingle.json').then(function() {
+    ok(AL.assets.bg, 'asset \'bg\' loaded.');
     start();
   });
 });
@@ -606,9 +606,9 @@ asyncTest('should auto load assets if property \'loadBundles\' is set to a singl
 asyncTest('should auto load assets if property \'loadBundles\' is set to multiple bundle names.', function() {
   expect(2);
 
-  AM.loadManifest('./json/loadBundlesMultiple.json').then(function() {
-    ok(AM.assets.bg, 'asset \'bg\' loaded.');
-    ok(AM.assets.bullet, 'asset \'bullet\' loaded.');
+  AL.loadManifest('./json/loadBundlesMultiple.json').then(function() {
+    ok(AL.assets.bg, 'asset \'bg\' loaded.');
+    ok(AL.assets.bullet, 'asset \'bullet\' loaded.');
     start();
   });
 });
@@ -616,9 +616,9 @@ asyncTest('should auto load assets if property \'loadBundles\' is set to multipl
 asyncTest('should auto load assets if property \'loadBundles\' is set to \'all\'.', function() {
   expect(2);
 
-  AM.loadManifest('./json/loadBundlesAll.json').then(function() {
-    ok(AM.assets.bg, 'asset \'bg\' loaded.');
-    ok(AM.assets.bullet, 'asset \'bullet\' loaded.');
+  AL.loadManifest('./json/loadBundlesAll.json').then(function() {
+    ok(AL.assets.bg, 'asset \'bg\' loaded.');
+    ok(AL.assets.bullet, 'asset \'bullet\' loaded.');
     start();
   });
 });
@@ -627,11 +627,11 @@ asyncTest('should not process the manifest if it has already been loaded.', func
   expect(2);
 
   // fake the manifest already having been loaded
-  AM.manifestUrl = './json/test.json';
+  AL.manifestUrl = './json/test.json';
 
-  AM.loadManifest('./json/test.json').then(function() {
-    ok(!AM.bundles.level1, 'bundle \'level1\' was not loaded from the manifest.');
-    ok(!AM.assets.bg, 'asset \'bg\' was not loaded from the manifest.')
+  AL.loadManifest('./json/test.json').then(function() {
+    ok(!AL.bundles.level1, 'bundle \'level1\' was not loaded from the manifest.');
+    ok(!AL.assets.bg, 'asset \'bg\' was not loaded from the manifest.')
     start();
   }, function(err) {
     ok(0, err.message);
@@ -645,7 +645,7 @@ asyncTest('should not process the manifest if it has already been loaded.', func
 asyncTest('should throw an error if the manifest fails to load.', function() {
   expect(1);
 
-  AM.loadManifest('someFile.json').then(function() {
+  AL.loadManifest('someFile.json').then(function() {
   }, function(err) {
     ok(1, 'deferred promise was rejected.');
     start();
@@ -655,7 +655,7 @@ asyncTest('should throw an error if the manifest fails to load.', function() {
 asyncTest('should propagate errors.', function() {
   expect(1);
 
-  AM.loadManifest('./json/badBunle.json').then(function() {
+  AL.loadManifest('./json/badBunle.json').then(function() {
   }, function(err) {
     ok(1, 'error propagated.');
     start();
@@ -665,7 +665,7 @@ asyncTest('should propagate errors.', function() {
 asyncTest('should notify user of progress.', function() {
   expect(1);
 
-  AM.loadManifest('./json/loadBundlesSingle.json').then(function() {
+  AL.loadManifest('./json/loadBundlesSingle.json').then(function() {
   }, function(err) {
   }, function(progress) {
     ok(1, 'progress event.');

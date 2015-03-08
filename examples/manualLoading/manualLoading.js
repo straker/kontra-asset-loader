@@ -8,10 +8,10 @@
 (function() {
   var pBar = document.getElementById('progress-bar');
   var percent = document.getElementById('percent')
-  var AM = new AssetManager();
+  var AL = new AssetLoader();
 
-  AM.createBundle('level1');
-  AM.addBundleAsset('level1', {
+  AL.createBundle('level1');
+  AL.addBundleAsset('level1', {
     "bg": "../imgs/road.png",
     "player": "../imgs/sports_car.png",
     "car": "../imgs/car.png",
@@ -20,7 +20,7 @@
     "motorcycle_left": "../imgs/motorcycle_left.png"
   });
 
-  AM.loadBundle('level1').then(function() {
+  AL.loadBundle('level1').then(function() {
     showPlayButton();
   }, function(err) {
     console.error(err.message);

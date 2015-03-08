@@ -8,9 +8,9 @@
 (function() {
   var pBar = document.getElementById('progress-bar');
   var percent = document.getElementById('percent')
-  var AM = new AssetManager();
+  var AL = new AssetLoader();
 
-  AM.loadManifest('manifest.json').then(function() {
+  AL.loadManifest('manifest.json').then(function() {
     showPlayButton();
   }, function(err) {
     console.error(err.message);
