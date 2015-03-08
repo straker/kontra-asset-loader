@@ -12,7 +12,7 @@ gulp.task('lint', function() {
 
 gulp.task('scripts', function() {
   return gulp.src(['src/core.js', 'src/manifest.js', 'src/bundles.js', 'src/assets.js', 'node_modules/qLite/qLite.js'])
-    .pipe(concat('assetLoader.build.js'))
+    .pipe(concat('assetLoader.js'))
     .pipe(concat.header('(function(exports, document) {\n\'use strict\';\n'))
     .pipe(concat.footer('\n\nexports.AssetLoader = AssetLoader;\n})(window, document);'))
     .pipe(gulp.dest('.'))
