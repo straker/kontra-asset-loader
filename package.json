@@ -1,7 +1,7 @@
 {
   "name": "assetLoader",
   "version": "1.0.0",
-  "description": "HTML JavaScript game asset manager",
+  "description": "HTML JavaScript game asset loader",
   "main": "assetLoader.js",
   "directories": {
     "example": "examples",
