@@ -26,7 +26,7 @@ AssetLoader.prototype.loadAsset = function(asset) {
         type = 'audio';
       }
       else {
-        type = getType(src);
+        type = this.getType(src);
       }
       defer = q.defer();
 
@@ -35,80 +35,36 @@ AssetLoader.prototype.loadAsset = function(asset) {
         case 'image':
           // create closure for event binding
           (function loadImage(name, src, defer) {
-            var image = new Image();
-            image.status = 'loading';
-            image.name = name;
-            image.onload = function() {
-              image.status = 'loaded';
-              _this.assets[name] = image;
+            _this.loadImage(src, name)
+            .then(function loadImageSuccess(image) {
               defer.resolve();
               deferred.notify({'loaded': ++numLoaded, 'total': numAssets});
-            };
-            image.onerror = function() {
-              defer.reject(new Error('Unable to load Image \'' + name + '\''));
-            };
-            image.src = src;
+            }, function loadImageError(err) {
+              defer.reject(new Error(err.name + ': ' + err.message + ' \'' + name + '\' from src \'' + src + '\''));
+            });
 
             promises.push(defer.promise);
           })(assetName, src, defer);
           break;
 
         case 'audio':
-          if (isString(src)) {
-            src = [src];
-          }
-
-          // check that the browser can play one of the listed audio types
-          var source, playableSrc;
-          for (var i = 0, len = src.length; i < len; i++) {
-            source = src[i];
-            var extension = getExtension(source);
-
-            // break on first audio type that is playable
-            if (this.canPlay[extension]) {
-              playableSrc = source;
-              break;
-            }
-          }
-
-          if (!playableSrc) {
-            defer.reject(new Error('Browser cannot play any of the audio types provided for asset \'' + assetName + '\''));
-            promises.push(defer.promise);
+          // don't count audio in iOS
+          if (this.isiOS) {
+            numAssets--;
           }
           else {
-            // don't count audio in iOS
-            if (this.isiOS) {
-              numAssets--;
-            }
-
-            (function loadAudio(name, src, defer) {
-              var audio = new Audio();
-              audio.status = 'loading';
-              audio.name = name;
-              audio.addEventListener('canplay', function() {
-                audio.status = 'loaded';
-                _this.assets[name] = audio;
-                defer.resolve();
-                deferred.notify({'loaded': ++numLoaded, 'total': numAssets});
-              });
-              audio.onerror = function() {
-                defer.reject(new Error('Unable to load Audio \'' + name + '\''));
-              };
-              audio.src = src;
-              audio.preload = 'auto';
-              audio.load();
-
-              // for iOS, just load the asset without adding it the promises array
-              // the audio will be downloaded on user interaction instead
-              if (_this.isiOS) {
-                audio.status = 'loaded';
-                _this.assets[name] = audio;
-              }
-              else {
-                promises.push(defer.promise);
-              }
-            })(assetName, playableSrc, defer);
+            promises.push(defer.promise);
           }
+
+          (function loadAudio(name, src, defer) {
+            _this.loadAudio(src, name)
+            .then(function loadAudioSuccess(image) {
+              defer.resolve();
+              deferred.notify({'loaded': ++numLoaded, 'total': numAssets});
+            }, function loadAudioError(err) {
+              defer.reject(new Error(err.name + ': ' + err.message + ' \'' + name + '\' from src \'' + src + '\''));
+            });
+          })(assetName, src, defer);
           break;
 
         case 'js':
@@ -137,9 +93,8 @@ AssetLoader.prototype.loadAsset = function(asset) {
 
         case 'json':
           (function loadJSONFile(name, src, defer) {
-            _this.loadJSON(src)
+            _this.loadJSON(src, name)
             .then(function loadJsonSuccess(json) {
-              _this.assets[name] = json;
               defer.resolve();
               deferred.notify({'loaded': ++numLoaded, 'total': numAssets});
             }, function loadJSONError(err) {
@@ -169,6 +124,114 @@ AssetLoader.prototype.loadAsset = function(asset) {
   function loadAssetError(err) {
     deferred.reject(err);
   });
+
+  return deferred.promise;
+};
+
+/**
+ * Return if an asset has already been loaded.
+ * @public
+ * @memberof AssetLoader
+ * @param {string} asset - The name or URL of the asset.
+ * @returns {boolean}
+ */
+AssetLoader.prototype.assetLoaded = function(asset) {
+  return this.assets[asset] !== undefined;
+};
+
+/**
+ * Load an Image file.
+ * @public
+ * @memberof AssetLoader
+ * @param {string} url - The URL to the Image file. Resolve with the Image.
+ * @param {string} [name] - The name to save to <code>this.assets</code>.
+ * @returns {Promise} A deferred promise.
+ */
+AssetLoader.prototype.loadImage = function(url, name) {
+  var _this = this;
+  var deferred = q.defer();
+  var image = new Image();
+  image.status = 'loading';
+  image.name = name;
+  image.onload = function() {
+    image.status = 'loaded';
+    _this.assets[url] = image;
+
+    if (name) {
+      _this.assets[name] = image;
+    }
+    deferred.resolve(image);
+  };
+  image.onerror = function(error) {
+    var err = new Error(error.message);
+    deferred.reject(formatError(err, 'Unable to load Image'));
+  };
+  image.src = url;
+
+  return deferred.promise;
+};
+
+/**
+ * Load an Audio file.
+ */
+AssetLoader.prototype.loadAudio = function(url, name) {
+  var _this = this;
+  var deferred = q.defer();
+
+  if (isString(url)) {
+    url = [url];
+  }
+
+  // check that the browser can play one of the listed audio types
+  var source, playableSrc;
+  for (var i = 0, len = url.length; i < len; i++) {
+    source = url[i];
+    var extension = this.getExtension(source);
+
+    // break on first audio type that is playable
+    if (this.canPlay[extension]) {
+      playableSrc = source;
+      break;
+    }
+  }
+
+  if (!playableSrc) {
+    var err = new Error();
+    deferred.reject(formatError(err, 'Browser cannot play any of the audio types provided'));
+  }
+  else {
+    (function loadAudio(name, src) {
+      var audio = new Audio();
+      audio.status = 'loading';
+      audio.addEventListener('canplay', function() {
+        audio.status = 'loaded';
+        _this.assets[url] = audio;
+
+        if (name) {
+          _this.assets[name] = audio;
+        }
+        deferred.resolve(audio);
+      });
+      audio.onerror = function(error) {
+        var err = new Error(error.message);
+        deferred.reject(formatError(err, 'Unable to load Audio'));
+      };
+      audio.src = src;
+      audio.preload = 'auto';
+      audio.load();
+
+      // for iOS, just load the asset without adding it the promises array
+      // the audio will be downloaded on user interaction instead
+      if (_this.isiOS) {
+        audio.status = 'loaded';
+        _this.assets[url] = audio;
+
+        if (name) {
+          _this.assets[name] = audio;
+        }
+      }
+    })(name, playableSrc);
+  }
 
   return deferred.promise;
 };
@@ -240,16 +303,23 @@ AssetLoader.prototype.loadCSS = function(url) {
  * @public
  * @memberof AssetLoader
  * @param {string} url - The URL to the JSON file.
+ * @param {string} [name] - The name to save to <code>this.assets</code>.
  * @returns {Promise} A deferred promise. Resolves with the parsed JSON.
  * @throws {Error} When the JSON file fails to load.
  */
-AssetLoader.prototype.loadJSON = function(url) {
+AssetLoader.prototype.loadJSON = function(url, name) {
+  var _this = this;
   var deferred = q.defer();
   var req = new XMLHttpRequest();
   req.addEventListener('load', function JSONLoaded() {
     if (req.status === 200) {
       try {
         var json = JSON.parse(req.responseText);
+        _this.assets[url] = json;
+
+        if (name) {
+          _this.assets[name] = json;
+        }
         deferred.resolve(json);
       }
       catch (err) {

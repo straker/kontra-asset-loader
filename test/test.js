@@ -21,6 +21,121 @@ test('should be instantiable', function() {
 
 /***************************************************************
  *
+ * getExtension
+ *
+ ***************************************************************/
+module('AssetLoader.getExtension', {
+  setup: function() {
+    AL = new AssetLoader();
+  },
+  teardown: function() {
+    AL = undefined;
+  }
+});
+
+test('should return the correct file extension', function() {
+  var extensions = ['jpeg', 'jpg', 'gif', 'png', 'wav', 'mp3', 'ogg', 'acc', 'm4a', 'js', 'css', 'json'];
+
+  var extension;
+  for (var i = 0, len = extensions.length; i < len; i++) {
+    extension = extensions[i];
+
+    equal(AL.getExtension('path.to.file.' + extension), extension, extension.toUpperCase() + ' correctly returned as ' + extension + '.');
+  }
+});
+
+
+
+
+
+/***************************************************************
+ *
+ * getType
+ *
+ ***************************************************************/
+module('AssetLoader.getType', {
+  setup: function() {
+    AL = new AssetLoader();
+  },
+  teardown: function() {
+    AL = undefined;
+  }
+});
+
+test('should return image extensions as images.', function() {
+  equal(AL.getType('image.jpeg'), 'image', 'JPEG correctly returned as image.');
+  equal(AL.getType('image_gif.jpg'), 'image', 'JPG correctly returned as image.');
+  equal(AL.getType('image.new.gif'), 'image', 'GIF correctly returned as image.');
+  equal(AL.getType('imageA_1@.png'), 'image', 'PNG correctly returned as image.');
+});
+
+test('should return audio extensions as audios.', function() {
+  equal(AL.getType('audio.wav'), 'audio', 'WAV correctly returned as audio.');
+  equal(AL.getType('audio_1.mp3'), 'audio', 'MP3 correctly returned as audio.');
+  equal(AL.getType('audio.new.ogg'), 'audio', 'OGG correctly returned as audio.');
+  equal(AL.getType('audioA_1@.aac'), 'audio', 'AAC correctly returned as audio.');
+  equal(AL.getType('audio.N64_acc.m4a'), 'audio', 'M4A correctly returned as audio.');
+});
+
+test('should return js extensions as js.', function() {
+  equal(AL.getType('javascript.js'), 'js', 'JS correctly returned as js.');
+});
+
+test('should return css extensions as css.', function() {
+  equal(AL.getType('stylesheet.css'), 'css', 'CSS correctly returned as css.');
+});
+
+test('should return json extensions as json.', function() {
+  equal(AL.getType('jsonp.json'), 'json', 'JSON correctly returned as json.');
+});
+
+
+
+
+
+/***************************************************************
+ *
+ * loadImage
+ *
+ ***************************************************************/
+module('AssetLoader.loadImage', {
+  setup: function() {
+    AL = new AssetLoader();
+  },
+  teardown: function() {
+    AL = undefined;
+  }
+});
+
+asyncTest('should load the image.', function() {
+  expect(3);
+
+  AL.loadImage('./imgs/bullet.gif', 'bullet').then(function(image) {
+    ok(image, 'json successfully loaded.');
+    ok(AL.assets['./imgs/bullet.gif'], 'asset \'./imgs/bullet.gif\' exists.');
+    ok(AL.assets['bullet'], 'asset \'bullet\' exists.');
+    start();
+  }, function(err) {
+    start();
+  });
+});
+
+asyncTest('should throw an error if the image fails to load.', function() {
+  expect(1);
+
+  AL.loadImage('fakeImage.gif').then(function() {
+  }, function(err) {
+    ok(1, 'deferred promise was rejected.');
+    start();
+  });
+});
+
+
+
+
+
+/***************************************************************
+ *
  * loadScript
  *
  ***************************************************************/
@@ -424,10 +539,57 @@ asyncTest('should notify user of progress and properly count the number of asset
 
 /***************************************************************
  *
- * loadBunle
+ * assetLoaded
  *
  ***************************************************************/
- module('AssetLoader.loadBundle', {
+module('AssetLoader.assetLoaded', {
+  setup: function() {
+    AL = new AssetLoader();
+  },
+  teardown: function() {
+    AL = undefined;
+  }
+});
+
+asyncTest('should return true if asset has been loaded,', function() {
+  expect(2);
+
+  AL.loadAsset({'jpeg': './imgs/bullet.jpeg'}).then(function() {
+    equal(AL.assetLoaded('jpeg'), true, 'Asset \'jpeg\' has been loaded.');
+    equal(AL.assetLoaded('./imgs/bullet.jpeg'), true, 'Asset \'./imgs/bullet.jpeg\' has been loaded.');
+    start();
+  }, function(err) {
+    start();
+  });
+});
+
+test('should return false if asset has not been loaded,', function() {
+  equal(AL.assetLoaded('gif'), false, 'Asset \'gif\' has not been loaded.');
+  equal(AL.assetLoaded('gif'), false, 'Asset \'./imgs/bullet.gif\' has not been loaded.');
+});
+
+asyncTest('should return false if asset failed to load,', function() {
+  expect(2);
+
+  AL.loadAsset({'badImage': 'badImage.gif'}).then(function() {
+    start();
+  }, function(err) {
+    equal(AL.assetLoaded('badImage'), false, 'Asset \'badImage\' was not loaded.');
+    equal(AL.assetLoaded('badImage.gif'), false, 'Asset \'badImage.gif\' was not loaded.');
+    start();
+  });
+});
+
+
+
+
+
+/***************************************************************
+ *
+ * loadBundle
+ *
+ ***************************************************************/
+module('AssetLoader.loadBundle', {
   setup: function() {
     AL = new AssetLoader();
   },

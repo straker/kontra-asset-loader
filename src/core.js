@@ -63,6 +63,45 @@ function AssetLoader() {
 }
 
 /**
+ * Return the extension of an asset.
+ * @public
+ * @memberof AssetLoader
+ * @param {string} url - The URL to the asset.
+ * @returns {string}
+ */
+AssetLoader.prototype.getExtension = function(url) {
+  // @see {@link http://jsperf.com/extract-file-extension}
+  return url.substr((~-url.lastIndexOf(".") >>> 0) + 2);
+};
+
+/**
+ * Return the type of asset based on it's extension.
+ * @public
+ * @memberof AssetLoader
+ * @param {string} url - The URL to the asset.
+ * @returns {string} image, audio, js, json.
+ */
+AssetLoader.prototype.getType = function(url) {
+  var extension = this.getExtension(url);
+
+  if (extension.match(/(jpeg|jpg|gif|png)$/)) {
+    return 'image';
+  }
+  else if (extension.match(/(wav|mp3|ogg|aac|m4a)$/)) {
+    return 'audio';
+  }
+  else if(extension.match(/(js)$/)) {
+    return 'js';
+  }
+  else if(extension.match(/(css)$/)) {
+    return 'css';
+  }
+  else if(extension.match(/(json)$/)) {
+    return 'json';
+  }
+};
+
+/**
  * Add a bundle to the bundles dictionary.
  * @private
  * @memberof AssetLoader
@@ -103,7 +142,7 @@ function countAssets(assets) {
         type = 'audio';
       }
       else {
-        type = getType(asset);
+        type = this.getType(asset);
       }
 
       // only count audio assets if this is not iOS
@@ -128,43 +167,6 @@ function countAssets(assets) {
  */
 function isString(obj) {
   return toString.call(obj) === '[object String]';
-}
-
-/**
- * Return the type of asset based on it's extension.
- * @private
- * @memberof AssetLoader
- * @param {string} url - The URL to the asset.
- * @returns {string} image, audio, js, json.
- */
-function getType(url) {
-  if (url.match(/\.(jpeg|jpg|gif|png)$/)) {
-    return 'image';
-  }
-  else if (url.match(/\.(wav|mp3|ogg|aac|m4a)$/)) {
-    return 'audio';
-  }
-  else if(url.match(/\.(js)$/)) {
-    return 'js';
-  }
-  else if(url.match(/\.(css)$/)) {
-    return 'css';
-  }
-  else if(url.match(/\.(json)$/)) {
-    return 'json';
-  }
-}
-
-/**
- * Return the extension of an asset.
- * @private
- * @memberof AssetLoader
- * @param {string} url - The URL to the asset.
- * @returns {string}
- */
-function getExtension(url) {
-  // @see {@link http://jsperf.com/extract-file-extension}
-  return url.substr((~-url.lastIndexOf(".") >>> 0) + 2);
 }
 
 /**

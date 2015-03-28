@@ -3,11 +3,12 @@ var jshint = require('gulp-jshint');
 var concat = require('gulp-concat-util');
 var uglify = require('gulp-uglify');
 var rename = require('gulp-rename');
+var size = require('gulp-size');
 
 gulp.task('lint', function() {
   return gulp.src('src/*.js')
     .pipe(jshint())
-    .pipe(jshint.reporter('default'));
+    .pipe(jshint.reporter( 'jshint-stylish' ));
 });
 
 gulp.task('scripts', function() {
@@ -18,11 +19,12 @@ gulp.task('scripts', function() {
     .pipe(gulp.dest('.'))
     .pipe(rename('assetLoader.min.js'))
     .pipe(uglify())
+    .pipe(size())
     .pipe(gulp.dest('.'));
 });
 
 gulp.task('watch', function() {
-  gulp.watch('js/*.js', ['lint', 'scripts']);
+  gulp.watch('src/*.js', ['lint', 'scripts']);
 });
 
 gulp.task('default', ['lint', 'scripts', 'watch']);
