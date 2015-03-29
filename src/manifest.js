@@ -2,7 +2,9 @@
  * Load an asset manifest file.
  * @public
  * @memberof AssetLoader
+ *
  * @param {string} url - The URL to the asset manifest file.
+ *
  * @returns {Promise} A deferred promise.
  */
 AssetLoader.prototype.loadManifest = function(url) {

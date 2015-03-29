@@ -2,9 +2,12 @@
  * Create a bundle.
  * @public
  * @memberof AssetLoader
+ *
  * @param {string|array} bundle    - The name of the bundle(s).
  * @param {boolean}      isPromise - If this function is called by a function that uses a promise.
+ *
  * @throws {Error} If the bundle name already exists.
+ *
  * @example
  * AssetLoader.createBundle('bundleName');
  * AssetLoader.createBundle(['bundle1', 'bundle2']);
@@ -36,9 +39,13 @@ AssetLoader.prototype.createBundle = function(bundle, isPromise) {
  * Load all assets in a bundle.
  * @public
  * @memberof AssetLoader
+ *
  * @param {string|array} bundle - The name of the bundle(s).
+ *
  * @returns {Promise} A deferred promise.
+ *
  * @throws {ReferenceError} If the bundle has not be created.
+ *
  * @example
  * AssetLoader.loadBundle('bundleName');
  * AssetLoader.loadBundle(['bundle1', 'bundle2']);
@@ -97,10 +104,13 @@ AssetLoader.prototype.loadBundle = function(bundle) {
  * Add an asset to a bundle.
  * @public
  * @memberof AssetLoader
+ *
  * @param {string}  bundleName - The name of the bundle.
  * @param {object}  asset      - The asset(s) to add to the bundle.
  * @param {boolean} isPromise  - If this function is called by a function that uses a promise.
+ *
  * @throws {ReferenceError} If the bundle has not be created.
+ *
  * @example
  * AssetLoader.addBundleAsset('bundleName', {'assetName': 'assetUrl'});
  * AssetLoader.addBundleAsset('bundleName', {'asset1': 'asset1Url', 'asset2': 'asset2Url'});
@@ -125,3 +135,27 @@ AssetLoader.prototype.addBundleAsset = function(bundleName, asset, isPromise) {
     }
   }
 };
+
+/**
+ * Add a bundle to the bundles dictionary.
+ * @private
+ * @memberof AssetLoader
+ *
+ * @param {string} bundleName - The name of the bundle.
+ *
+ * @throws {Error} If the bundle already exists.
+ */
+function addBundle(bundleName) {
+  if (this.bundles[bundleName]) {
+    throw new Error('Bundle \'' + bundleName + '\' already created');
+  }
+  else {
+    // make the status property in-enumerable so it isn't returned in a for-in loop
+    this.bundles[bundleName] = Object.create(Object.prototype, { status: {
+      value: 'created',
+      writable: true,
+      enumerable: false,
+      configurable: false }
+    });
+  }
+}

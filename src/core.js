@@ -33,8 +33,8 @@ var toString = ({}).toString;
  * @property {string} manifestUrl - The URL to the manifest file.
  * @property {object} manifest    - The JSON parsed manifest file.
  * @property {object} assets      - List of loaded assets.
- * @property {string} assetRoot   - Root directive for all assets.
  * @property {object} bundles     - List of created bundles.
+ * @property {boolean} isiOS      - If the current browser is an iOS browser.
  * @property {object} canPlay     - List of audio type compatibility.
  */
 function AssetLoader() {
@@ -44,7 +44,6 @@ function AssetLoader() {
 
   // assets
   this.assets = {};
-  this.assetRoot = './';
   this.bundles = {};
 
   this.supportedAssets = ['jpeg', 'jpg', 'gif', 'png', 'wav', 'mp3', 'ogg', 'aac', 'm4a', 'js', 'css', 'json'];
@@ -66,7 +65,9 @@ function AssetLoader() {
  * Return the extension of an asset.
  * @public
  * @memberof AssetLoader
+ *
  * @param {string} url - The URL to the asset.
+ *
  * @returns {string}
  */
 AssetLoader.prototype.getExtension = function(url) {
@@ -78,7 +79,9 @@ AssetLoader.prototype.getExtension = function(url) {
  * Return the type of asset based on it's extension.
  * @public
  * @memberof AssetLoader
+ *
  * @param {string} url - The URL to the asset.
+ *
  * @returns {string} image, audio, js, json.
  */
 AssetLoader.prototype.getType = function(url) {
@@ -102,67 +105,12 @@ AssetLoader.prototype.getType = function(url) {
 };
 
 /**
- * Add a bundle to the bundles dictionary.
- * @private
- * @memberof AssetLoader
- * @param {string} bundleName - The name of the bundle.
- * @throws {Error} If the bundle already exists.
- */
-function addBundle(bundleName) {
-  if (this.bundles[bundleName]) {
-    throw new Error('Bundle \'' + bundleName + '\' already created');
-  }
-  else {
-    // make the status property in-enumerable so it isn't returned in a for-in loop
-    this.bundles[bundleName] = Object.create(Object.prototype, { status: {
-      value: 'created',
-      writable: true,
-      enumerable: false,
-      configurable: false }
-    });
-  }
-}
-
-/**
- * Count the number of assets.
- * @private
- * @memberof AssetLoader
- * @param {object} assets - The assets to count.
- * @return {number} Total number of assets.
- */
-function countAssets(assets) {
-  var total = 0;
-  var asset, type;
-
-  for (var assetName in assets) {
-    if (assets.hasOwnProperty(assetName)) {
-      asset = assets[assetName];
-
-      if (asset instanceof Array) {
-        type = 'audio';
-      }
-      else {
-        type = this.getType(asset);
-      }
-
-      // only count audio assets if this is not iOS
-      if (type === 'audio' && !this.isiOS) {
-        total++;
-      }
-      else {
-        total++;
-      }
-    }
-  }
-
-  return total;
-}
-
-/**
  * Test if an object is a string.
  * @private
  * @memberof AssetLoader
+ *
  * @param {object} obj - The object to test.
+ *
  * @returns {boolean} True if the object is a string.
  */
 function isString(obj) {
@@ -174,8 +122,10 @@ function isString(obj) {
  * Use this function right before passing the Error to the user.
  * @private
  * @memberOf AssetLoader
+ *
  * @param {Error}  err - Error object.
  * @param {string} msg - Custom message.
+ *
  * @returns {string} The formated err message.
  */
 function formatError(err, msg) {
