@@ -107,11 +107,11 @@ module('AssetLoader.loadImage', {
   }
 });
 
-asyncTest('should load the image.', function() {
+asyncTest('should load the image and resolve with it.', function() {
   expect(3);
 
   AL.loadImage('./imgs/bullet.gif', 'bullet').then(function(image) {
-    ok(image, 'json successfully loaded.');
+    ok(image, 'image successfully loaded.');
     ok(AL.assets['./imgs/bullet.gif'], 'asset \'./imgs/bullet.gif\' exists.');
     ok(AL.assets['bullet'], 'asset \'bullet\' exists.');
     start();
