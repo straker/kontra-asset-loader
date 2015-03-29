@@ -9,11 +9,11 @@ AssetLoader is a JavaScript library that makes it easy to load assets for your g
 
 ## Dependencies
 
-AssetLoader depends on the [qLite.js](https://github.com/straker/qLite) library (3KB minified) for the promises API. It is included in the `assetManager.build.js` and `assetManager.min.js`, so there is no need to include it separately into your game.
+AssetLoader depends on the [qLite.js](https://github.com/straker/qLite) library (3KB minified) for the promises API. It is included in the `assetLoader.js` and `assetLoader.min.js`, so there is no need to include it separately into your game.
 
 ## Documentation
 
-Visit [my site](http://sklambert.com/assetManager/docs/) for the full AssetLoader documentation, or you can view the docs from this repo using [htmlPreview](http://htmlpreview.github.io/?https://raw.github.com/straker/AssetLoader/master/docs/index.html).
+Visit [my site](http://sklambert.com/assetManager/docs/) for the full AssetLoader documentation, or you can view the docs from this repo using [htmlPreview](http://htmlpreview.github.io/?https://raw.github.com/straker/kontra-asset-loader/master/docs/index.html).
 
 ## Usage Examples
 
