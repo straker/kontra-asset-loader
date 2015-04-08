@@ -8,7 +8,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "gulp"
   },
   "repository": {
     "type": "git",
@@ -28,8 +28,16 @@
     "gulp-concat-util": "^0.5.2",
     "gulp-jshint": "^1.9.2",
     "gulp-rename": "^1.2.0",
+    "gulp-shell": "^0.4.0",
     "gulp-size": "^1.2.1",
     "gulp-uglify": "^1.1.0",
-    "jshint-stylish": "^1.0.1"
+    "http-server": "^0.8.0",
+    "jshint-stylish": "^1.0.1",
+    "karma": "^0.12.31",
+    "karma-chrome-launcher": "^0.1.7",
+    "karma-firefox-launcher": "^0.1.4",
+    "karma-ie-launcher": "^0.1.5",
+    "karma-qunit": "^0.1.4",
+    "karma-safari-launcher": "^0.1.1"
   }
 }

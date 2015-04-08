@@ -8,6 +8,13 @@
  * @returns {string} The property value
  */
 function getCSS(id, property) {
+  if (!document.getElementById(id)) {
+    // append the element to the DOM
+    var div = document.createElement('div');
+    div.setAttribute('id', id);
+    document.body.appendChild(div);
+  }
+
   return window.getComputedStyle(document.getElementById(id),null).getPropertyValue(property);
 }
 

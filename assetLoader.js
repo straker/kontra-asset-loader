@@ -35,8 +35,8 @@ var toString = ({}).toString;
  * @property {string} manifestUrl - The URL to the manifest file.
  * @property {object} manifest    - The JSON parsed manifest file.
  * @property {object} assets      - List of loaded assets.
- * @property {string} assetRoot   - Root directive for all assets.
  * @property {object} bundles     - List of created bundles.
+ * @property {boolean} isiOS      - If the current browser is an iOS browser.
  * @property {object} canPlay     - List of audio type compatibility.
  */
 function AssetLoader() {
@@ -46,7 +46,6 @@ function AssetLoader() {
 
   // assets
   this.assets = {};
-  this.assetRoot = './';
   this.bundles = {};
 
   this.supportedAssets = ['jpeg', 'jpg', 'gif', 'png', 'wav', 'mp3', 'ogg', 'aac', 'm4a', 'js', 'css', 'json'];
@@ -68,7 +67,9 @@ function AssetLoader() {
  * Return the extension of an asset.
  * @public
  * @memberof AssetLoader
+ *
  * @param {string} url - The URL to the asset.
+ *
  * @returns {string}
  */
 AssetLoader.prototype.getExtension = function(url) {
@@ -80,7 +81,9 @@ AssetLoader.prototype.getExtension = function(url) {
  * Return the type of asset based on it's extension.
  * @public
  * @memberof AssetLoader
+ *
  * @param {string} url - The URL to the asset.
+ *
  * @returns {string} image, audio, js, json.
  */
 AssetLoader.prototype.getType = function(url) {
@@ -104,67 +107,12 @@ AssetLoader.prototype.getType = function(url) {
 };
 
 /**
- * Add a bundle to the bundles dictionary.
- * @private
- * @memberof AssetLoader
- * @param {string} bundleName - The name of the bundle.
- * @throws {Error} If the bundle already exists.
- */
-function addBundle(bundleName) {
-  if (this.bundles[bundleName]) {
-    throw new Error('Bundle \'' + bundleName + '\' already created');
-  }
-  else {
-    // make the status property in-enumerable so it isn't returned in a for-in loop
-    this.bundles[bundleName] = Object.create(Object.prototype, { status: {
-      value: 'created',
-      writable: true,
-      enumerable: false,
-      configurable: false }
-    });
-  }
-}
-
-/**
- * Count the number of assets.
- * @private
- * @memberof AssetLoader
- * @param {object} assets - The assets to count.
- * @return {number} Total number of assets.
- */
-function countAssets(assets) {
-  var total = 0;
-  var asset, type;
-
-  for (var assetName in assets) {
-    if (assets.hasOwnProperty(assetName)) {
-      asset = assets[assetName];
-
-      if (asset instanceof Array) {
-        type = 'audio';
-      }
-      else {
-        type = this.getType(asset);
-      }
-
-      // only count audio assets if this is not iOS
-      if (type === 'audio' && !this.isiOS) {
-        total++;
-      }
-      else {
-        total++;
-      }
-    }
-  }
-
-  return total;
-}
-
-/**
  * Test if an object is a string.
  * @private
  * @memberof AssetLoader
+ *
  * @param {object} obj - The object to test.
+ *
  * @returns {boolean} True if the object is a string.
  */
 function isString(obj) {
@@ -176,8 +124,10 @@ function isString(obj) {
  * Use this function right before passing the Error to the user.
  * @private
  * @memberOf AssetLoader
+ *
  * @param {Error}  err - Error object.
  * @param {string} msg - Custom message.
+ *
  * @returns {string} The formated err message.
  */
 function formatError(err, msg) {
@@ -189,7 +139,9 @@ function formatError(err, msg) {
  * Load an asset manifest file.
  * @public
  * @memberof AssetLoader
+ *
  * @param {string} url - The URL to the asset manifest file.
+ *
  * @returns {Promise} A deferred promise.
  */
 AssetLoader.prototype.loadManifest = function(url) {
@@ -261,9 +213,12 @@ AssetLoader.prototype.loadManifest = function(url) {
  * Create a bundle.
  * @public
  * @memberof AssetLoader
+ *
  * @param {string|array} bundle    - The name of the bundle(s).
  * @param {boolean}      isPromise - If this function is called by a function that uses a promise.
+ *
  * @throws {Error} If the bundle name already exists.
+ *
  * @example
  * AssetLoader.createBundle('bundleName');
  * AssetLoader.createBundle(['bundle1', 'bundle2']);
@@ -295,9 +250,13 @@ AssetLoader.prototype.createBundle = function(bundle, isPromise) {
  * Load all assets in a bundle.
  * @public
  * @memberof AssetLoader
+ *
  * @param {string|array} bundle - The name of the bundle(s).
+ *
  * @returns {Promise} A deferred promise.
+ *
  * @throws {ReferenceError} If the bundle has not be created.
+ *
  * @example
  * AssetLoader.loadBundle('bundleName');
  * AssetLoader.loadBundle(['bundle1', 'bundle2']);
@@ -356,10 +315,13 @@ AssetLoader.prototype.loadBundle = function(bundle) {
  * Add an asset to a bundle.
  * @public
  * @memberof AssetLoader
+ *
  * @param {string}  bundleName - The name of the bundle.
  * @param {object}  asset      - The asset(s) to add to the bundle.
  * @param {boolean} isPromise  - If this function is called by a function that uses a promise.
+ *
  * @throws {ReferenceError} If the bundle has not be created.
+ *
  * @example
  * AssetLoader.addBundleAsset('bundleName', {'assetName': 'assetUrl'});
  * AssetLoader.addBundleAsset('bundleName', {'asset1': 'asset1Url', 'asset2': 'asset2Url'});
@@ -384,13 +346,41 @@ AssetLoader.prototype.addBundleAsset = function(bundleName, asset, isPromise) {
     }
   }
 };
+
+/**
+ * Add a bundle to the bundles dictionary.
+ * @private
+ * @memberof AssetLoader
+ *
+ * @param {string} bundleName - The name of the bundle.
+ *
+ * @throws {Error} If the bundle already exists.
+ */
+function addBundle(bundleName) {
+  if (this.bundles[bundleName]) {
+    throw new Error('Bundle \'' + bundleName + '\' already created');
+  }
+  else {
+    // make the status property in-enumerable so it isn't returned in a for-in loop
+    this.bundles[bundleName] = Object.create(Object.prototype, { status: {
+      value: 'created',
+      writable: true,
+      enumerable: false,
+      configurable: false }
+    });
+  }
+}
 /**
  * Load an asset.
  * @public
  * @memberof AssetLoader
+ *
  * @param {object} asset - The asset(s) to load.
+ *
  * @returns {Promise} A deferred promise.
+ *
  * @throws {TypeError} If the asset type is not supported.
+ *
  * @example
  * AssetLoader.loadAsset({'assetName': 'assetUrl'});
  * AssetLoader.loadAsset({'asset1': 'asset1Url', 'asset2': 'asset2Url'});
@@ -518,7 +508,9 @@ AssetLoader.prototype.loadAsset = function(asset) {
  * Return if an asset has already been loaded.
  * @public
  * @memberof AssetLoader
+ *
  * @param {string} asset - The name or URL of the asset.
+ *
  * @returns {boolean}
  */
 AssetLoader.prototype.assetLoaded = function(asset) {
@@ -529,16 +521,20 @@ AssetLoader.prototype.assetLoaded = function(asset) {
  * Load an Image file.
  * @public
  * @memberof AssetLoader
+ *
  * @param {string} url - The URL to the Image file. Resolve with the Image.
  * @param {string} [name] - The name to save to <code>this.assets</code>.
+ *
  * @returns {Promise} A deferred promise.
  */
 AssetLoader.prototype.loadImage = function(url, name) {
   var _this = this;
   var deferred = q.defer();
   var image = new Image();
+
   image.status = 'loading';
   image.name = name;
+
   image.onload = function() {
     image.status = 'loaded';
     _this.assets[url] = image;
@@ -548,10 +544,12 @@ AssetLoader.prototype.loadImage = function(url, name) {
     }
     deferred.resolve(image);
   };
+
   image.onerror = function(error) {
     var err = new Error(error.message);
     deferred.reject(formatError(err, 'Unable to load Image'));
   };
+
   image.src = url;
 
   return deferred.promise;
@@ -559,6 +557,13 @@ AssetLoader.prototype.loadImage = function(url, name) {
 
 /**
  * Load an Audio file.
+ * @public
+ * @memberof AssetLoader
+ *
+ * @param {string} url - The URL to the Audio file. Resolve with the Audio.
+ * @param {string} [name] - The name to save to <code>this.assets</code>.
+ *
+ * @returns {Promise} A deferred promise.
  */
 AssetLoader.prototype.loadAudio = function(url, name) {
   var _this = this;
@@ -588,7 +593,9 @@ AssetLoader.prototype.loadAudio = function(url, name) {
   else {
     (function loadAudio(name, src) {
       var audio = new Audio();
+
       audio.status = 'loading';
+
       audio.addEventListener('canplay', function() {
         audio.status = 'loaded';
         _this.assets[url] = audio;
@@ -598,10 +605,12 @@ AssetLoader.prototype.loadAudio = function(url, name) {
         }
         deferred.resolve(audio);
       });
+
       audio.onerror = function(error) {
         var err = new Error(error.message);
         deferred.reject(formatError(err, 'Unable to load Audio'));
       };
+
       audio.src = src;
       audio.preload = 'auto';
       audio.load();
@@ -627,21 +636,28 @@ AssetLoader.prototype.loadAudio = function(url, name) {
  * <p><strong>NOTE:</strong> This function does not add the asset to the assets dictionary.</p>
  * @public
  * @memberof AssetLoader
+ *
  * @param {string} url - The URL to the JavaScript file.
+ *
  * @returns {Promise} A deferred promise.
  */
 AssetLoader.prototype.loadScript = function(url) {
   var deferred = q.defer();
   var script = document.createElement('script');
+
   script.async = true;
+
   script.onload = function() {
     deferred.resolve();
   };
+
   script.onerror = function() {
     var err = new Error();
     deferred.reject(formatError(err, 'Unable to load JavaScript file'));
   };
+
   script.src = url;
+  script.setAttribute('data-url', url);  // set data attribute for testing purposes
   document.body.appendChild(script);
 
   return deferred.promise;
@@ -652,25 +668,31 @@ AssetLoader.prototype.loadScript = function(url) {
  * <p><strong>NOTE:</strong> This function does not add the asset to the assets dictionary.</p>
  * @public
  * @memberof AssetLoader
+ *
  * @param {string} url - The URL to the CSS file.
+ *
  * @returns {Promise} A deferred promise.
  */
 AssetLoader.prototype.loadCSS = function(url) {
   var deferred = q.defer();
 
   /*
-   * Because of the lack of onload and onerror support for &lt;link> tags, we need to load the CSS
-   * file via ajax and then put the contents of the file into a &lt;style> tag.
+   * Because of the lack of onload and onerror support for &lt;link> tags, we need
+   * to load the CSS file via ajax and then put the contents of the file into a
+   * &lt;style> tag.
    * @see {@link http://pieisgood.org/test/script-link-events/}
    */
   var req = new XMLHttpRequest();
+
   req.addEventListener('load', function CSSLoaded() {
     // ensure we have a css file before creating the <style> tag
     if (req.status === 200 && req.getResponseHeader('content-type').indexOf('text/css') !== -1) {
       var style = document.createElement('style');
+
       style.innerHTML = req.responseText;
       style.setAttribute('data-url', url);  // set data attribute for testing purposes
       document.getElementsByTagName('head')[0].appendChild(style);
+
       deferred.resolve();
     }
     else {
@@ -678,6 +700,7 @@ AssetLoader.prototype.loadCSS = function(url) {
       deferred.reject(formatError(err, 'Unable to load CSS file'));
     }
   });
+
   req.open('GET', url, true);
   req.send();
 
@@ -688,15 +711,19 @@ AssetLoader.prototype.loadCSS = function(url) {
  * Load a JSON file.
  * @public
  * @memberof AssetLoader
+ *
  * @param {string} url - The URL to the JSON file.
  * @param {string} [name] - The name to save to <code>this.assets</code>.
+ *
  * @returns {Promise} A deferred promise. Resolves with the parsed JSON.
+ *
  * @throws {Error} When the JSON file fails to load.
  */
 AssetLoader.prototype.loadJSON = function(url, name) {
   var _this = this;
   var deferred = q.defer();
   var req = new XMLHttpRequest();
+
   req.addEventListener('load', function JSONLoaded() {
     if (req.status === 200) {
       try {
@@ -717,11 +744,49 @@ AssetLoader.prototype.loadJSON = function(url, name) {
       deferred.reject(formatError(err, 'Unable to load JSON file'));
     }
   });
+
   req.open('GET', url, true);
   req.send();
 
   return deferred.promise;
 };
+
+/**
+ * Count the number of assets.
+ * @private
+ * @memberof AssetLoader
+ *
+ * @param {object} assets - The assets to count.
+ *
+ * @return {number} Total number of assets.
+ */
+function countAssets(assets) {
+  var total = 0;
+  var asset, type;
+
+  for (var assetName in assets) {
+    if (assets.hasOwnProperty(assetName)) {
+      asset = assets[assetName];
+
+      if (asset instanceof Array) {
+        type = 'audio';
+      }
+      else {
+        type = this.getType(asset);
+      }
+
+      // only count audio assets if this is not iOS
+      if (type === 'audio' && !this.isiOS) {
+        total++;
+      }
+      else {
+        total++;
+      }
+    }
+  }
+
+  return total;
+}
 /**
  * The MIT License
  *
