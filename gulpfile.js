@@ -39,4 +39,4 @@ gulp.task('watch', function() {
   gulp.watch('src/*.js', ['lint', 'scripts']);
 });
 
-gulp.task('default', ['lint', 'scripts', 'start-server', 'test', 'watch']);
+gulp.task('default', ['lint', 'scripts', /*'start-server', 'test',*/ 'watch']);
