@@ -15,9 +15,9 @@ gulp.task('lint', function() {
 
 gulp.task('scripts', function() {
   return gulp.src(['node_modules/qLite/qLite.js', 'src/core.js', 'src/commonCore.js', 'src/assets.js', 'src/bundles.js', 'src/manifest.js'])
-    .pipe(concat('assetLoader.js'))
+    .pipe(concat('kontraAssetLoader.js'))
     .pipe(gulp.dest('.'))
-    .pipe(rename('assetLoader.min.js'))
+    .pipe(rename('kontraAssetLoader.min.js'))
     .pipe(uglify())
     .pipe(size())
     .pipe(gulp.dest('.'));
