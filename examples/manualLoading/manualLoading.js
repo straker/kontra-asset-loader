@@ -8,19 +8,17 @@
 (function() {
   var pBar = document.getElementById('progress-bar');
   var percent = document.getElementById('percent')
-  var AL = new AssetLoader();
 
-  AL.createBundle('level1');
-  AL.addBundleAsset('level1', {
-    "bg": "../imgs/road.png",
-    "player": "../imgs/sports_car.png",
-    "car": "../imgs/car.png",
-    "car_left": "../imgs/car_left.png",
-    "motorcycle": "../imgs/motorcycle.png",
-    "motorcycle_left": "../imgs/motorcycle_left.png"
-  });
+  kontra.createBundle('level1', [
+    "../imgs/road.png",
+    "../imgs/sports_car.png",
+    "../imgs/car.png",
+    "../imgs/car_left.png",
+    "../imgs/motorcycle.png",
+    "../imgs/motorcycle_left.png"
+  ]);
 
-  AL.loadBundle('level1').then(function() {
+  kontra.loadBundles('level1').then(function() {
     showPlayButton();
   }, function(err) {
     console.error(err.message);

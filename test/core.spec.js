@@ -1,15 +1,17 @@
-module('AssetLoader', {
-  setup: function() {
-    AL = new AssetLoader();
-  },
-  teardown: function() {
-    AL = undefined;
-  }
-});
+// reset kontra to it's original state
+function resetKontra() {
+  kontra.images = {};
+  kontra.audios = {};
+  kontra.data = {};
 
-test('should be instantiable', function() {
-  ok(new AssetLoader(), 'successfully called new on AssetLoader.');
-});
+  kontra.assetPaths = {
+    images: '',
+    audios: '',
+    data: '',
+  };
+
+  kontra.bundles = {};
+}
 
 
 
@@ -17,25 +19,21 @@ test('should be instantiable', function() {
 
 /***************************************************************
  *
- * getExtension
+ * getAssetExtension
  *
  ***************************************************************/
-module('AssetLoader.getExtension', {
-  setup: function() {
-    AL = new AssetLoader();
-  },
+module('kontra.getAssetExtension', {
   teardown: function() {
-    AL = undefined;
+    resetKontra();
   }
 });
 
 test('should return the correct file extension', function() {
   var extension;
-  for (var i = 0, len = AL.supportedAssets.length; i < len; i++) {
-    extension = AL.supportedAssets[i];
+  ['jpeg', 'jpg', 'gif', 'png', 'wav', 'mp3', 'ogg' ,'aac', 'm4a', 'json', 'txt'].forEach(function(extension) {
 
-    equal(AL.getExtension('path.to.file.' + extension), extension, extension.toUpperCase() + ' correctly returned as ' + extension + '.');
-  }
+    equal(kontra.getAssetExtension('path.to.file.' + extension), extension, extension.toUpperCase() + ' correctly returned as ' + extension + '.');
+  });
 });
 
 
@@ -44,41 +42,53 @@ test('should return the correct file extension', function() {
 
 /***************************************************************
  *
- * getType
+ * getAssetType
  *
  ***************************************************************/
-module('AssetLoader.getType', {
-  setup: function() {
-    AL = new AssetLoader();
-  },
+module('kontra.getAssetType', {
   teardown: function() {
-    AL = undefined;
+    resetKontra();
   }
 });
 
 test('should return image extensions as images.', function() {
-  equal(AL.getType('image.jpeg'), 'image', 'JPEG correctly returned as image.');
-  equal(AL.getType('image_gif.jpg'), 'image', 'JPG correctly returned as image.');
-  equal(AL.getType('image.new.gif'), 'image', 'GIF correctly returned as image.');
-  equal(AL.getType('imageA_1@.png'), 'image', 'PNG correctly returned as image.');
+  equal(kontra.getAssetType('image.jpeg'), 'Image', 'JPEG correctly returned as Image.');
+  equal(kontra.getAssetType('image_gif.jpg'), 'Image', 'JPG correctly returned as Image.');
+  equal(kontra.getAssetType('image.new.gif'), 'Image', 'GIF correctly returned as Image.');
+  equal(kontra.getAssetType('imageA_1@.png'), 'Image', 'PNG correctly returned as Image.');
 });
 
 test('should return audio extensions as audios.', function() {
-  equal(AL.getType('audio.wav'), 'audio', 'WAV correctly returned as audio.');
-  equal(AL.getType('audio_1.mp3'), 'audio', 'MP3 correctly returned as audio.');
-  equal(AL.getType('audio.new.ogg'), 'audio', 'OGG correctly returned as audio.');
-  equal(AL.getType('audioA_1@.aac'), 'audio', 'AAC correctly returned as audio.');
-  equal(AL.getType('audio.N64_acc.m4a'), 'audio', 'M4A correctly returned as audio.');
+  equal(kontra.getAssetType('audio.wav'), 'Audio', 'WAV correctly returned as Audio.');
+  equal(kontra.getAssetType('audio_1.mp3'), 'Audio', 'MP3 correctly returned as Audio.');
+  equal(kontra.getAssetType('audio.new.ogg'), 'Audio', 'OGG correctly returned as Audio.');
+  equal(kontra.getAssetType('audioA_1@.aac'), 'Audio', 'AAC correctly returned as Audio.');
+  equal(kontra.getAssetType('audio.N64_acc.m4a'), 'Audio', 'M4A correctly returned as Audio.');
 });
 
-test('should return js extensions as js.', function() {
-  equal(AL.getType('javascript.js'), 'js', 'JS correctly returned as js.');
+test('should return json extensions as data.', function() {
+  equal(kontra.getAssetType('jsonp.json'), 'Data', 'JSON correctly returned as Data.');
+  equal(kontra.getAssetType('text.txt'), 'Data', 'TXT correctly returned as Data.');
 });
 
-test('should return css extensions as css.', function() {
-  equal(AL.getType('stylesheet.css'), 'css', 'CSS correctly returned as css.');
+
+
+
+
+/***************************************************************
+ *
+ * getAssetName
+ *
+ ***************************************************************/
+module('kontra.getAssetName', {
+  teardown: function() {
+    resetKontra();
+  }
 });
 
-test('should return json extensions as json.', function() {
-  equal(AL.getType('jsonp.json'), 'json', 'JSON correctly returned as json.');
+test('should return the file name without the extension.', function() {
+  equal(kontra.getAssetName('image.jpeg'), 'image', 'Asset name \'image\' returned correctly.');
+  equal(kontra.getAssetName('image.test.gif'), 'image.test', 'Asset name \'image.test\' returned correctly.');
+  equal(kontra.getAssetName('audio/explosion.ogg'), 'audio/explosion', 'Asset name \'audio/explosion\' returned correctly.');
+  equal(kontra.getAssetName('my_json_object1@.json'), 'my_json_object1@', 'Asset name \'my_json_object1@\' returned correctly.');
 });

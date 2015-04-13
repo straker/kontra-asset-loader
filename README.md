@@ -1,54 +1,47 @@
-AssetLoader - HTML5 JavaScript game asset manager
+Kontra Asset Loader - HTML5 JavaScript game asset loader.
 ============
 
 Currently tested on Chrome35, Safari7, FireFox27, IE9+, Kindle Silk, and mobile Safari.
 
-## What is AssetLoader
+## What is Kontra Asset Loader
 
-AssetLoader is a JavaScript library that makes it easy to load assets for your game. It was inspired by the [Jaws](https://github.com/ippa/jaws) game library and Boris Smus's [Game Asset Loader](https://github.com/borismus/game-asset-loader).
+Kontra Asset Loader is a JavaScript library that makes it easy to load assets for your game. It was inspired by the [Jaws](https://github.com/ippa/jaws) game library and Boris Smus's [Game Asset Loader](https://github.com/borismus/game-asset-loader).
 
 ## Dependencies
 
-AssetLoader depends on the [qLite.js](https://github.com/straker/qLite) library (3KB minified) for the promises API. It is included in the `assetLoader.js` and `assetLoader.min.js`, so there is no need to include it separately into your game.
+Kontra Asset Loader depends on the [qLite.js](https://github.com/straker/qLite) library (3KB minified) for the promises API. It is included in `kontraAssetLoader.js` and `kontraAssetLoader.min.js`, so there is no need to include it separately into your game.
 
-## Documentation
+## Usage
 
-Visit [my site](http://sklambert.com/assetManager/docs/) for the full AssetLoader documentation, or you can view the docs from this repo using [htmlPreview](http://htmlpreview.github.io/?https://raw.github.com/straker/kontra-asset-loader/master/docs/index.html).
+1. [Loading an Asset Manifest](#loading-an-asset-manifest)
+2. [Loading Assets](#loading-assets)
+3. [Loading Images, Audios, and Data/JSON](#loading-images-audios-and-datajson)
+4. [Loading Bundles](#loading-bundles)
 
-## Usage Examples
+### Loading an Asset Manifest
 
-### Getting Started
-
-Start by initializing the AssetLoader.
-
-```javascript
-AL = new AssetLoader();
-```
-
-#### Loading an Asset Manifest
-
-AssetLoader's greatest benefit comes from being able to load a file that defines what assets you need and when you need them. The asset manifest file groups assets into bundles which are then loaded when needed.
+Kontra Asset Loader's greatest benefit comes from being able to load a file that defines what assets you need and when you need them. The asset manifest file groups assets into bundles which are then loaded when needed.
 
 An asset manifest can look as follows:
 
 ```javascript
 {
+  "imagePath": "imgs/",
+  "audioPath": "audio/",
+  "dataPath": "levels/",
   "bundles": [{
     "name": "level1",
-    "assets": {
-      // an asset is defined as {name: url}
-      "bg": "imgs/bg.png",
-      "music": ["audio/music.mp3", "audio/music.aac", "audio/music.ogg"],
-      "myScript": "js/myScript.js",
-      "myCSS": "css/myCSS.css",
-      "level1Data": "levels/level1.json"
-    }
+    "assets": [
+      "bg.png",
+      ["music.mp3", "music.aac", "music.ogg"],
+      "level1.json"
+    ]
   },
   {
     "name": "level2",
-    "assets": {
+    "assets": [
       ...
-    }
+    ]
   }],
   "loadBundles" : "level1"
 }
@@ -56,13 +49,13 @@ An asset manifest can look as follows:
 
 You can define as many bundles as you would like.
 
-The `loadBundle` property tells AssetLoader to load any bundles automatically when the you call `loadManifest`. You can tell it to load a single bundle
+The `loadBundles` property tells Kontra Asset Loader to load any bundles automatically when the you call `kontra.loadManifest`. You can tell it to load a single bundle
 
 ```javascript
 "loadBundles" : "level1"
 ```
 
-a list of bundles
+a group of bundles
 
 ```javascript
 "loadBundles" : ["level1", "level2"]
@@ -74,12 +67,14 @@ or all bundles
 "loadBunldes": "all"
 ```
 
-You can tell AssetLoader to load the manifest into your game (and thus the assets) by calling `loadManifest`. Since `loadManifest` returns a promise, you can add finish, error, and progress callbacks using `then`.
+If the property does not exist, no bundles will be loaded.
+
+You can tell Kontra Asset Loader to load the manifest into your game (and thus the assets) by calling `kontra.loadManifest`. Since `kontra.loadManifest` returns a promise, you can add finish, error, and progress callbacks using `then`.
 
 *see [Promisejs.org](https://www.promisejs.org/) for more details.*
 
 ```javascript
-AL.loadManifest("path/to/manifest").then(
+kontra.loadManifest("path/to/manifest.json").then(
 function finishCallback() {
   console.log("Finished loading manifest.");
 }, function errorCallback(err) {
@@ -89,20 +84,14 @@ function finishCallback() {
 });
 ```
 
-Once loaded, all assets can be accessed by name from `AL.assets`.
+After the manifest is loaded, you can load any bundles by calling [kontra.loadBundles](#loading-bundles).
 
-After the manifest is loaded, you can load any bundles by calling [loadBundle](#loading-bundles).
+### Loading Assets
 
-#### Loading Assets
-
-You can also load an asset (or a group of assets) by calling `loadAsset` (returns a promise).
+You can also load an asset or a group of assets by calling `kontra.loadAssets` (returns a Promise).
 
 ```javascript
-AL.loadAsset({
-  "assetName1" : "path/to/asset",
-  "assetName2" : "path/to/asset"
-  ...
-}).then(
+kontra.loadAssets("path/to/image.png", "path/to/audio.mp3", "path/to/data.json").then(
 function finishCallback() {
   console.log("Finished loading all assets.");
 }, function errorCallback(err) {
@@ -112,21 +101,68 @@ function finishCallback() {
 });
 ```
 
-When loading audio assets, you can specify multiple formats and AssetLoader will determine which format to load based on the current browser's support.
+When loading audio assets, you can specify multiple formats and Kontra Asset Loader will determine which format to load based on the current browser's support.
 
 ```javascript
-AL.loadAsset({
-  "music": ["audio/music.mp3", "audio/music.aac", "audio/music.ogg"]
-})
-...
+kontra.loadAssets(["audio/music.mp3", "audio/music.aac", "audio/music.ogg"])
 ```
 
-#### Loading JSON, JavaScript, and CSS
-
-AssetLoader also allows you to load JSON, JavaScript, and CSS assets directly by calling `loadJSON`, `loadScript`, and `loadCSS` respectively. All three functions return a promise but do not use the progress callback.
+Once loaded, assets can be accessed by their name or URL from `kontra.images`, `kontra.audios`, and `kontra.data`.
 
 ```javascript
-AL.loadJSON("path/to/json").then(
+kontra.loadAssets("car.png", "music.mp3", "level.json");
+
+context.drawImage(kontra.images.car, 0, 0);
+context.drawImage(kontra.images["car.png"], 0, 0);
+
+kontra.audios.music.play();
+kontra.audios["music.mp3"].play();
+
+canvas.width = kontra.data.level.width;
+canvas.width = kontra.data["level.json"].width;
+```
+
+If you load multiple audio formats, it is recommended that you don't try to access the audio by URL as you won't know which audio format was loaded by the browser.
+
+If you use folders in your asset path, the name and URL will also include the folder.
+
+```javascript
+kontra.loadAssets("images/car.png");
+
+kontra.images["images/car"];
+kontra.images["images/car.png"];
+```
+
+You can offset the use of folders by setting `kontra.imagePath`, `kontra.audioPath`, or `kontra.dataPath` either manually or in the manifest file. The asset path will be appended to each asset request URL, so you can load the asset without needing to specify the folder. Accessing the asset by its URL will still use the folder however.
+
+```javascript
+kontra.imagePath = "images/";  //-> always end the path with a /
+kontra.loadAssets("car.png");  //-> file located at images/car.png
+
+kontra.images["car"];  //-> can now access by just its name
+kontra.images["images/car.png"];  //-> the URL will still use the folder though
+```
+
+### Loading Images, Audios, and Data/JSON
+
+Kontra Asset Loader also allows you to load Image, Audio, and data/JSON assets directly by calling `kontra.loadImage`, `kontra.loadAudio`, and `kontra.loadData` respectively. All three functions return a promise but do not use the progress callback.
+
+```javascript
+kontra.loadImage("car.png").then(
+function finishCallback(image) {
+  console.log("Finished loading image.");
+}, function errorCallback(err) {
+  console.error(err.message);
+});
+
+kontra.loadAudio(["music.mp3", "music.ogg"]).then(
+function finishCallback(audio) {
+  console.log("Finished loading audio.");
+}, function errorCallback(err) {
+  console.error(err.message);
+});
+
+kontra.loadData("level.json").then(
 function finishCallback(json) {
   console.log("Finished loading json.");
 }, function errorCallback(err) {
@@ -134,31 +170,27 @@ function finishCallback(json) {
 });
 ```
 
-`loadJSON` automatically parses the file and returns the parsed JSON in the finish callback. `loadScript` and `loadCSS` do not add the script and css to `AL.assets` since they load the asset into the DOM.
+`kontra.loadImage` passes the loaded Image object to the success callback of the promise, `kontra.loadAudio` passes the loaded Audio object, and `kontra.loadData` passes either the parsed JSON if the asset is a JSON file, or the plain text of the file.
 
-#### Loading Bundles
+### Loading Bundles
 
 You can also create a group of assets to load at a later time by calling `createBundle` (does not return a promise).
 
 ```javascript
-AL.createBundle("bundleName");
+kontra.createBundle("bundleName", ["car.png"]);
+kontra.createBundle("level1", ["level.json", ["music.mp3", "music.ogg"] ]);
 ```
 
-All bundles can be accessed by name from `AL.bundles`.
+All bundles can be accessed by name from `kontra.bundles`.
 
-You can then add assets to the bundle by calling `addBundleAsset` (does not return a promise).
 ```javascript
-AL.addBundleAsset("bundleName", {
-  "assetName1" : "path/to/asset",
-  "assetName2" : "path/to/asset"
-  ...
-});
+console.log(kontra.bundles.bundleName); //-> ["car.png"]
 ```
 
-The assets won't be loaded (i.e. accessible from `AL.assets`) until you call `AL.loadBundle` (returns a promise).
+The bundled assets won't be loaded (i.e. accessible from `kontra.images`, `kontra.audios`, or `kontra.data`) until you call `kontra.loadBundles` (returns a promise).
 
 ```javascript
-AL.loadBundle("bundleName").then(
+kontra.loadBundles("bundleName", "level1").then(
 function finishCallback() {
   console.log("Finished loading bundle.");
 }, function errorCallback(err) {
@@ -167,5 +199,3 @@ function finishCallback() {
   console.log("Loaded " + progress.loaded + " of " + progress.total + " assets.");
 });
 ```
-
-LoadBundles also accepts an array of bundle names.

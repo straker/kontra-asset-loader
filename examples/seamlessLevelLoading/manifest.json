@@ -1,33 +1,35 @@
 {
+  "imagePath": "../imgs/",
+  "audioPath": "../audio/",
   "bundles": [{
     "name": "level1",
-    "assets": {
-      "bg": "../imgs/road.png",
-      "player": "../imgs/sports_car.png",
-      "car": "../imgs/car.png",
-      "car_left": "../imgs/car_left.png",
-      "motorcycle": "../imgs/motorcycle.png",
-      "motorcycle_left": "../imgs/motorcycle_left.png",
-      "music": ["../audio/mink_pohawk.mp3", "../audio/mink_pohawk.ogg"]
-    }
+    "assets": [
+      "road.png",
+      "sports_car.png",
+      "car.png",
+      "car_left.png",
+      "motorcycle.png",
+      "motorcycle_left.png",
+      ["mink_pohawk.mp3", "mink_pohawk.ogg"]
+    ]
   },
   {
     "name": "level2",
-    "assets": {
-      "truck": "../imgs/truck.png",
-      "truck_left": "../imgs/truck_left.png",
-      "van": "../imgs/van.png",
-      "van_left": "../imgs/van_left.png"
-    }
+    "assets": [
+      "truck.png",
+      "truck_left.png",
+      "van.png",
+      "van_left.png"
+    ]
   },
   {
     "name": "level3",
-    "assets": {
-      "bus": "../imgs/bus.png",
-      "bus_left": "../imgs/bus_left.png",
-      "garbage_truck": "../imgs/garbage_truck.png",
-      "garbage_truck_left": "../imgs/garbage_truck_left.png"
-    }
+    "assets": [
+      "bus.png",
+      "bus_left.png",
+      "garbage_truck.png",
+      "garbage_truck_left.png"
+    ]
   }],
   "loadBundles" : "level1"
 }

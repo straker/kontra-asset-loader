@@ -1,16 +1,14 @@
 {
   "test": "hello",
+  "imagePath": "imgs/",
+  "audioPath": "audio/",
+  "dataPath": "json/",
   "bundles" : [{
     "name" : "level1",
-    "assets" : {
-      "bg" : "./imgs/bullet.png"
-    }
+    "assets" : ["./imgs/bullet.png"]
   },
   {
     "name" : "level2",
-    "assets": {
-      "bg" : "./imgs/bullet.png"
-    }
-  }],
-  "loadBundles" : false
+    "assets": ["./imgs/bullet.png"]
+  }]
 }

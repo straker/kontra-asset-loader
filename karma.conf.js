@@ -13,7 +13,7 @@ module.exports = function(config) {
       {pattern: 'test/js/*.*', included: false, served: true },
       {pattern: 'test/json/*.*', included: false, served: true },
 
-      'assetLoader.js',
+      'kontraAssetLoader.min.js',
       'test/*.js'
     ],
     browsers: ['Chrome', 'Firefox', 'Safari', 'IE'],

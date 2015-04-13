@@ -14,12 +14,10 @@ gulp.task('lint', function() {
 });
 
 gulp.task('scripts', function() {
-  return gulp.src(['src/core.js', 'src/manifest.js', 'src/bundles.js', 'src/assets.js', 'node_modules/qLite/qLite.js'])
-    .pipe(concat('assetLoader.js'))
-    .pipe(concat.header('(function(exports, document) {\n\'use strict\';\n'))
-    .pipe(concat.footer('\n\nexports.AssetLoader = AssetLoader;\n})(window, document);'))
+  return gulp.src(['node_modules/qLite/qLite.js', 'src/core.js', 'src/commonCore.js', 'src/assets.js', 'src/bundles.js', 'src/manifest.js'])
+    .pipe(concat('kontraAssetLoader.js'))
     .pipe(gulp.dest('.'))
-    .pipe(rename('assetLoader.min.js'))
+    .pipe(rename('kontraAssetLoader.min.js'))
     .pipe(uglify())
     .pipe(size())
     .pipe(gulp.dest('.'));
