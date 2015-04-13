@@ -1,13 +1,14 @@
 {
+  "imagePath": "../imgs/",
   "bundles": [{
     "name": "level1",
     "assets": [
-      "../imgs/road.png",
-      "../imgs/sports_car.png",
-      "../imgs/car.png",
-      "../imgs/car_left.png",
-      "../imgs/motorcycle.png",
-      "../imgs/motorcycle_left.png"
+      "road.png",
+      "sports_car.png",
+      "car.png",
+      "car_left.png",
+      "motorcycle.png",
+      "motorcycle_left.png"
     ]
   }],
   "loadBundles" : "level1"
