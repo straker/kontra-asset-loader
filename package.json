@@ -1,6 +1,6 @@
 {
   "name": "kontraAssetLoader",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "HTML JavaScript game asset loader",
   "main": "kontraAssetLoader.js",
   "directories": {
