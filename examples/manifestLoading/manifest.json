@@ -1,14 +1,14 @@
 {
   "bundles": [{
     "name": "level1",
-    "assets": {
-      "bg": "../imgs/road.png",
-      "player": "../imgs/sports_car.png",
-      "car": "../imgs/car.png",
-      "car_left": "../imgs/car_left.png",
-      "motorcycle": "../imgs/motorcycle.png",
-      "motorcycle_left": "../imgs/motorcycle_left.png"
-    }
+    "assets": [
+      "../imgs/road.png",
+      "../imgs/sports_car.png",
+      "../imgs/car.png",
+      "../imgs/car_left.png",
+      "../imgs/motorcycle.png",
+      "../imgs/motorcycle_left.png"
+    ]
   }],
   "loadBundles" : "level1"
 }

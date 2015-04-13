@@ -8,9 +8,8 @@
 (function() {
   var pBar = document.getElementById('progress-bar');
   var percent = document.getElementById('percent')
-  var AL = new AssetLoader();
 
-  AL.loadManifest('manifest.json').then(function() {
+  kontra.loadManifest('manifest.json').then(function() {
     showPlayButton();
   }, function(err) {
     console.error(err.message);
