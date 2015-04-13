@@ -3,34 +3,23 @@
  * createBundle
  *
  ***************************************************************/
-module('AssetLoader.createBundle', {
-  setup: function() {
-    AL = new AssetLoader();
-  },
+module('kontra.createBundle', {
   teardown: function() {
-    AL = undefined;
+    resetKontra();
   }
 });
 
 test('should accept a string as an argument.', function() {
-  AL.createBundle('testBundle');
-  ok(AL.bundles.testBundle, 'bundle \'testBundle\' successfully created.');
+  kontra.createBundle('testBundle');
+  ok(kontra.bundles.testBundle, 'bundle \'testBundle\' successfully created.');
 });
 
-test('should accept an array as an argument.', function() {
-  AL.createBundle(['anotherBundle', 'anotherSecondBundle']);
-  ok(AL.bundles.anotherBundle, 'bundle \'anotherBundle\' successfully created.');
-  ok(AL.bundles.anotherSecondBundle, 'bundle \'anotherSecondBundle\' successfully created.');
-});
+test('should accept an array of assets to add to the bundle.', function() {
+  kontra.createBundle('anotherBundle', ['imgs/bullet.gif', 'audio/shoot.mp3']);
 
-test('should throw an error if the bundle name already exists.', function() {
-  AL.createBundle('testBundle');
-  throws(
-    function() {
-      AL.createBundle('testBundle');
-    },
-    'bundle \'testBundle\' already created.'
-  );
+  ok(kontra.bundles.anotherBundle, 'bundle \'anotherBundle\' successfully created.');
+  equal(kontra.bundles.anotherBundle[0], 'imgs/bullet.gif', 'asset \'imgs/bullet.gif\' added to the bundle.');
+  equal(kontra.bundles.anotherBundle[1], 'audio/shoot.mp3', 'asset \'audio/shoot.mp3\' added to the bundle.');
 });
 
 
@@ -39,64 +28,19 @@ test('should throw an error if the bundle name already exists.', function() {
 
 /***************************************************************
  *
- * addBundleAsset
+ * loadBundles
  *
  ***************************************************************/
-module('AssetLoader.addBundleAsset', {
-  setup: function() {
-    AL = new AssetLoader();
-  },
+module('kontra.loadBundles', {
   teardown: function() {
-    AL = undefined;
-  }
-});
-
-test('should add a single asset to a bundle.', function() {
-  AL.createBundle('myBundle');
-  AL.addBundleAsset('myBundle', {'myAsset': 'myAssetUrl'});
-
-  equal(AL.bundles.myBundle.myAsset, 'myAssetUrl', 'asset \'myAsset\' successfully added to the bundle \'myBundle\'.');
-});
-
-test('should add multiple assets to a bundle.', function() {
-  AL.createBundle('myBundle');
-  AL.addBundleAsset('myBundle', {'myAsset1': 'myAsset1Url', 'myAsset2': 'myAsset2Url'});
-
-  equal(AL.bundles.myBundle.myAsset1, 'myAsset1Url', 'asset \'myAsset1\' successfully added to the bundle \'myBundle\'.');
-  equal(AL.bundles.myBundle.myAsset2, 'myAsset2Url', 'asset \'myAsset2\' successfully added to the bundle \'myBundle\'.');
-});
-
-test('should throw an error if the bundle has not been created.', function() {
-  throws(
-    function() {
-      AL.addBundleAsset('myBundle', {'myAsset1': 'myAsset1Url'});
-    },
-    'bundle \'myBundle\' not created before adding assets.'
-  );
-});
-
-
-
-
-
-/***************************************************************
- *
- * loadBundle
- *
- ***************************************************************/
-module('AssetLoader.loadBundle', {
-  setup: function() {
-    AL = new AssetLoader();
-  },
-  teardown: function() {
-    AL = undefined;
+    resetKontra();
   }
 });
 
 asyncTest('should throw an error if the bundle has not been created.', function() {
   expect(1);
 
-  AL.loadBundle('myBundle').then(function() {
+  kontra.loadBundles('myBundle').then(function() {
   }, function(err) {
     ok(1, 'bundle \'myBundle\' not created.');
     start();
@@ -106,11 +50,10 @@ asyncTest('should throw an error if the bundle has not been created.', function(
 asyncTest('should load all assets from a single bundle.', function() {
   expect(1);
 
-  AL.createBundle('myBundle');
-  AL.addBundleAsset('myBundle', {'bullet': './imgs/bullet.jpeg'});
+  kontra.createBundle('myBundle', ['./imgs/bullet.jpeg']);
 
-  AL.loadBundle('myBundle').then(function() {
-    ok(AL.assets.bullet, 'asset \'bullet\' successfully loaded from bundle \'myBundle\'.');
+  kontra.loadBundles('myBundle').then(function() {
+    ok(kontra.images['./imgs/bullet.jpeg'], 'asset \'./imgs/bullet.jpeg\' successfully loaded from bundle \'myBundle\'.');
     start();
   });
 });
@@ -118,13 +61,12 @@ asyncTest('should load all assets from a single bundle.', function() {
 asyncTest('should load all assets from multiple bundles.', function() {
   expect(2);
 
-  AL.createBundle(['myBundle', 'otherBundle']);
-  AL.addBundleAsset('myBundle', {'bullet': './imgs/bullet.jpeg'});
-  AL.addBundleAsset('otherBundle', {'other': './imgs/bullet.jpeg'});
+  kontra.createBundle('myBundle', ['./imgs/bullet.jpeg']);
+  kontra.createBundle('otherBundle', ['./imgs/bullet.png']);
 
-  AL.loadBundle(['myBundle', 'otherBundle']).then(function() {
-    ok(AL.assets.bullet, 'asset \'bullet\' successfully loaded from bundle \'myBundle\'.');
-    ok(AL.assets.other, 'asset \'other\' successfully loaded from bundle \'otherBundle\'.')
+  kontra.loadBundles('myBundle', 'otherBundle').then(function() {
+    ok(kontra.images['./imgs/bullet.jpeg'], 'asset \'./imgs/bullet.jpeg\' successfully loaded from bundle \'myBundle\'.');
+    ok(kontra.images['./imgs/bullet.png'], 'asset \'./imgs/bullet.png\' successfully loaded from bundle \'otherBundle\'.')
     start();
   });
 });
@@ -132,10 +74,9 @@ asyncTest('should load all assets from multiple bundles.', function() {
 asyncTest('should propagate errors.', function() {
   expect(1);
 
-  AL.createBundle('myBundle');
-  AL.addBundleAsset('myBundle', {'test': 'test.css'})
+  kontra.createBundle('myBundle', ['test.png']);
 
-  AL.loadBundle('myBundle').then(function() {
+  kontra.loadBundles('myBundle').then(function() {
   }, function(err) {
     ok(1, 'error propagated.');
     start();
@@ -145,10 +86,9 @@ asyncTest('should propagate errors.', function() {
 asyncTest('should notify user of progress and properly count the number of assets for a single bundle with a single asset.', function() {
   expect(2);
 
-  AL.createBundle('myBundle');
-  AL.addBundleAsset('myBundle', {'bullet': './imgs/bullet.jpeg'});
+  kontra.createBundle('myBundle', ['./imgs/bullet.jpeg']);
 
-  AL.loadBundle('myBundle').then(function() {
+  kontra.loadBundles('myBundle').then(function() {
   }, function(err) {
   }, function(progress) {
     ok(1, 'progress event fired ' + progress.loaded + ' time for bundle \'myBundle\'.');  // should fire once
@@ -160,45 +100,39 @@ asyncTest('should notify user of progress and properly count the number of asset
 });
 
 asyncTest('should notify user of progress and properly count the number of assets for a single bundle with a multiple assets.', function() {
-  expect(5);
+  expect(3);
 
-  AL.createBundle('otherBundle');
-  AL.addBundleAsset('otherBundle', {
-    'jpeg': './imgs/bullet.jpeg',
-    'manifest': './json/test.json',
-    'testScript': './js/testScript.js',
-    'testCSS': './css/testCSS.css'
-  });
+  kontra.createBundle('otherBundle', [
+    './imgs/bullet.jpeg',
+    './json/test.json',
+  ]);
 
-  AL.loadBundle('otherBundle').then(function() {
+  kontra.loadBundles('otherBundle').then(function() {
   }, function(err) {
   }, function(progress) {
-    ok(1, 'progress event fired ' + progress.loaded + ' ' + (progress.loaded === 1 ? 'time' : 'times') + ' for bundle \'otherBundle\'.');  // should fire four times
+    ok(1, 'progress event fired ' + progress.loaded + ' ' + (progress.loaded === 1 ? 'time' : 'times') + ' for bundle \'otherBundle\'.');  // should fire twice
     if (progress.loaded === progress.total) {
-      equal(progress.total, 4, 'assets counted correctly for bundle \'otherBundle\'.');
+      equal(progress.total, 2, 'assets counted correctly for bundle \'otherBundle\'.');
       start();
     }
   });
 });
 
 asyncTest('should notify user of progress and properly count the number of assets for a multiple bundles.', function() {
-  expect(6);
+  expect(4);
 
-  AL.createBundle(['myBundle', 'otherBundle']);
-  AL.addBundleAsset('myBundle', {'bullet': './imgs/bullet.jpeg'});
-  AL.addBundleAsset('otherBundle', {
-    'jpeg': './imgs/bullet.jpeg',
-    'manifest': './json/test.json',
-    'testScript': './js/testScript.js',
-    'testCSS': './css/testCSS.css'
-  });
+  kontra.createBundle('myBundle', ['./imgs/bullet.jpeg']);
+  kontra.createBundle('otherBundle', [
+    './imgs/bullet.jpeg',
+    './json/test.json',
+  ]);
 
-  AL.loadBundle(['myBundle', 'otherBundle']).then(function() {
+  kontra.loadBundles('myBundle', 'otherBundle').then(function() {
   }, function(err) {
   }, function(progress) {
-    ok(1, 'progress event fired ' + progress.loaded + ' ' + (progress.loaded === 1 ? 'time' : 'times') + ' for bundles \'myBundle\' and \'otherBundle\'.');  // should fire five times
+    ok(1, 'progress event fired ' + progress.loaded + ' ' + (progress.loaded === 1 ? 'time' : 'times') + ' for bundles \'myBundle\' and \'otherBundle\'.');  // should fire 3 times
     if (progress.loaded === progress.total) {
-      equal(progress.total, 5, 'assets counted correctly for bundles \'myBundle\' and \'otherBundle\'.');
+      equal(progress.total, 3, 'assets counted correctly for bundles \'myBundle\' and \'otherBundle\'.');
       start();
     }
   });

@@ -1,74 +1,64 @@
-/**
- * Load an asset manifest file.
- * @public
- * @memberof AssetLoader
- *
- * @param {string} url - The URL to the asset manifest file.
- *
- * @returns {Promise} A deferred promise.
- */
-AssetLoader.prototype.loadManifest = function(url) {
-  var _this = this;
-  var deferred = q.defer();
-  var i, len, bundle, bundles;
+/*jshint -W084 */
 
-  // load the manifest only if it hasn't been loaded
-  if (this.manifestUrl !== url) {
-    this.loadJSON(url)
-    .then(function loadMainfestJSONSuccess(manifest) {
+var kontra = (function(kontra, q) {
+  /**
+   * Load an asset manifest file.
+   * @memberOf kontra
+   *
+   * @param {string} url - The URL to the asset manifest file.
+   *
+   * @returns {Promise} A deferred promise.
+   */
+  kontra.loadManifest = function loadManifest(url) {
+    var deferred = q.defer();
+    var bundles;
 
-      _this.manifest = manifest;
-      _this.manifestUrl = url;
-      _this.assetRoot = manifest.assetRoot || './';
+    kontra.loadData(url).then(
+      function loadManifestSuccess(manifest) {
+        kontra.assetPaths.images = manifest.imagePath || '';
+        kontra.assetPaths.audios = manifest.audioPath || '';
+        kontra.assetPaths.data = manifest.dataPath || '';
 
-      // create bundles and add assets
-      try {
-        for (i = 0, len = manifest.bundles.length; i < len; i++) {
-          bundle = manifest.bundles[i];
-          _this.createBundle(bundle.name, true);
-          _this.addBundleAsset(bundle.name, bundle.assets, true);
+        // create bundles and add assets
+        for (var i = 0, bundle; bundle = manifest.bundles[i]; i++) {
+          kontra.createBundle(bundle.name, bundle.assets);
         }
-      }
-      catch (err) {
-        deferred.reject(err);
-      }
 
-      // load bundles
-      if (manifest.loadBundles) {
-
-        if (isString(manifest.loadBundles)) {
-          // load all bundles
-          if (manifest.loadBundles === 'all') {
-            bundles = Object.keys(_this.bundles || {});
-          }
-          else {
-            bundles = [manifest.loadBundles];
-          }
+        if (!manifest.loadBundles) {
+          deferred.resolve();
+          return;
         }
-        else if (manifest.loadBundles instanceof Array) {
+
+        // load all bundles
+        if (manifest.loadBundles === 'all') {
+          bundles = Object.keys(kontra.bundles || {});
+        }
+        // load a single bundle
+        else if (kontra.isString(manifest.loadBundles)) {
+          bundles = [manifest.loadBundles];
+        }
+        // load multiple bundles
+        else {
           bundles = manifest.loadBundles;
         }
 
-        _this.loadBundle(bundles)
-        .then(function loadMainfestSuccess() {
-          deferred.resolve();
-        }, function loadMainfestError(err) {
-          deferred.reject(err);
-        }, function loadMainfestNotify(progress) {
-          deferred.notify(progress);
+        kontra.loadBundles.apply(kontra, bundles).then(
+          function loadBundlesSuccess() {
+            deferred.resolve();
+          },
+          function loadBundlesError(error) {
+            deferred.reject(error);
+          },
+          function loadBundlesNotify(progress) {
+            deferred.notify(progress);
         });
-      }
-      else {
-        deferred.resolve();
-      }
-    }, function loadMainfestJSONError(err) {
-      err.message = err.message.replace('JSON', 'manifest');
-      deferred.reject(err);
+      },
+      function loadManifestError(error) {
+        deferred.reject(error);
     });
-  }
-  else {
-    deferred.resolve();
-  }
 
-  return deferred.promise;
-};
+    return deferred.promise;
+  };
+
+  return kontra;
+})(kontra || {}, q);
