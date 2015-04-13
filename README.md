@@ -1,4 +1,4 @@
-Kontra Asset Loader - HTML5 JavaScript game asset loader. Part of the kontra.js game library.
+Kontra Asset Loader - HTML5 JavaScript game asset loader.
 ============
 
 Currently tested on Chrome35, Safari7, FireFox27, IE9+, Kindle Silk, and mobile Safari.
