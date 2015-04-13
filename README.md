@@ -13,6 +13,11 @@ Kontra Asset Loader depends on the [qLite.js](https://github.com/straker/qLite) 
 
 ## Usage
 
+1. [Loading an Asset Manifest](#loading-an-asset-manifest)
+2. [Loading Assets](#loading-assets)
+3. [Loading Images, Audios, and Data/JSON](#loading-images-audios-and-datajson)
+4. [Loading Bundles](#loading-bundles)
+
 ### Loading an Asset Manifest
 
 Kontra Asset Loader's greatest benefit comes from being able to load a file that defines what assets you need and when you need them. The asset manifest file groups assets into bundles which are then loaded when needed.
