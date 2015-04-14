@@ -483,24 +483,6 @@ var kontra = (function(kontra) {
 
   return kontra;
 })(kontra || {});
-/**
- * Functionality shared between kontra-asset-loader and kontra.js
- */
-var kontra = (function(kontra, document) {
-  /**
-   * Determine if a value is a String.
-   * @memberOf kontra
-   *
-   * @param {*} value - Value to test.
-   *
-   * @returns {boolean}
-   */
-  kontra.isString = function isString(value) {
-    return typeof value === 'string';
-  };
-
-  return kontra;
-})(kontra || {}, document);
 /*jshint -W084 */
 
 var kontra = (function(kontra, q) {
@@ -530,7 +512,7 @@ var kontra = (function(kontra, q) {
     }
 
     for (var i = 0, asset; asset = arguments[i]; i++) {
-      if (this.isString(asset)) {
+      if (!Array.isArray(asset)) {
         url = asset;
       }
       else {
@@ -634,7 +616,7 @@ var kontra = (function(kontra, q) {
     var deferred = q.defer();
     var source, name, playableSource, audio;
 
-    if (this.isString(url)) {
+    if (!Array.isArray(url)) {
       url = [url];
     }
 
@@ -824,7 +806,7 @@ var kontra = (function(kontra, q) {
           bundles = Object.keys(kontra.bundles || {});
         }
         // load a single bundle
-        else if (kontra.isString(manifest.loadBundles)) {
+        else if (!Array.isArray(manifest.loadBundles)) {
           bundles = [manifest.loadBundles];
         }
         // load multiple bundles

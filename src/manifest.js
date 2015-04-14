@@ -34,7 +34,7 @@ var kontra = (function(kontra, q) {
           bundles = Object.keys(kontra.bundles || {});
         }
         // load a single bundle
-        else if (kontra.isString(manifest.loadBundles)) {
+        else if (!Array.isArray(manifest.loadBundles)) {
           bundles = [manifest.loadBundles];
         }
         // load multiple bundles

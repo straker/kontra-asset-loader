@@ -27,7 +27,7 @@ var kontra = (function(kontra, q) {
     }
 
     for (var i = 0, asset; asset = arguments[i]; i++) {
-      if (this.isString(asset)) {
+      if (!Array.isArray(asset)) {
         url = asset;
       }
       else {
@@ -131,7 +131,7 @@ var kontra = (function(kontra, q) {
     var deferred = q.defer();
     var source, name, playableSource, audio;
 
-    if (this.isString(url)) {
+    if (!Array.isArray(url)) {
       url = [url];
     }
 
