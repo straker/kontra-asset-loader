@@ -1,7 +1,9 @@
-Kontra Asset Loader - HTML5 JavaScript game asset loader.
+Kontra Asset Loader - HTML5 JavaScript game asset loader. 
 ============
 
 Currently tested on Chrome35, Safari7, FireFox27, IE9+, Kindle Silk, and mobile Safari.
+
+**Deprecated: This is no longer supported and the asset loading was integrated into the Kontra micro-library. Please consider using [Kontra](https://github.com/straker/kontra) instead.**
 
 ## What is Kontra Asset Loader
 
